@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/Identity.Api/Identity.Api.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Data/Identity.Data.csproj" />
+    <Project Path="src/Modules/Identity/Identity.UseCases/Identity.UseCases.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/" />
+</Solution>

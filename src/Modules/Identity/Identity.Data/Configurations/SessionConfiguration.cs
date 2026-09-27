@@ -1,0 +1,70 @@
+﻿using Identity.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Identity.Data.Configurations
+{
+    public class SessionConfiguration : IEntityTypeConfiguration<Session>
+    {
+        public void Configure(EntityTypeBuilder<Session> builder)
+        {
+            builder.ToTable("sessions", "identity");
+
+            builder.HasKey(u => u.Id).HasName("pk_sessions");
+
+            builder.Property(u => u.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+
+            builder.Property(u => u.UserId)
+                .IsRequired()
+                .HasColumnName("user_id");
+
+            builder.Property(u => u.TokenHash)
+                .HasMaxLength(255)
+                .IsRequired()
+                .HasColumnName("token_hash");
+
+            builder.Property(u => u.DeviceInfo)
+                .HasMaxLength(50)
+                .HasColumnName("device_info");
+
+            builder.Property(u => u.IpAddress)
+                .HasMaxLength(50)
+                .HasColumnName("ip_address");
+
+            builder.Property(u => u.CreatedAt)
+                .HasColumnName("created_at");
+
+            builder.Property(u => u.ExpiresAt)
+                .HasColumnName("expires_at");
+
+            builder.Property(u => u.RevokedAt)
+                .HasColumnName("revoked_at");
+
+            builder.Property(s => s.ReplacedById)
+                .HasColumnName("replaced_by_id"); 
+
+
+            builder.HasIndex(u => u.TokenHash)
+                .IsUnique()
+                .HasDatabaseName("uq_sessions_token_hash");
+
+            builder.HasIndex(s => s.TokenHash)
+                .IsUnique()
+                .HasDatabaseName("idx_sessions_user_id");
+
+            builder.HasOne(s => s.User)
+                .WithMany(u => u.Sessiones)
+                .HasForeignKey(s => s.UserId)
+                .HasConstraintName("fk_sessions_users")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(s => s.ReplacedBy)
+                .WithMany()
+                .HasForeignKey(s => s.ReplacedById)
+                .HasConstraintName("fk_sessions_replaced_by")
+                .OnDelete(DeleteBehavior.NoAction); 
+        }
+    }
+}
