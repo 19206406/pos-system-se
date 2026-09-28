@@ -1,8 +1,9 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+using FluentValidation;
 using Shared.Exceptions.Common;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Shared.Exceptions.Handler
 {
@@ -86,4 +87,4 @@ namespace Shared.Exceptions.Handler
         };
     }
 }
-}
+
