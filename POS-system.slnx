@@ -4,7 +4,10 @@
   <Folder Name="/src/Modules/Identity/">
     <Project Path="src/Modules/Identity/Identity.Api/Identity.Api.csproj" />
     <Project Path="src/Modules/Identity/Identity.Data/Identity.Data.csproj" />
+    <Project Path="src/Modules/Identity/Identity.DTOs/Identity.DTOs.csproj" Id="e94ffe93-28ff-4bc2-8bce-a0e7edc0c3da" />
     <Project Path="src/Modules/Identity/Identity.UseCases/Identity.UseCases.csproj" />
   </Folder>
-  <Folder Name="/src/Shared/" />
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/Shared/Shared.csproj" Id="522837c1-bc87-4d91-8971-09995608316e" />
+  </Folder>
 </Solution>

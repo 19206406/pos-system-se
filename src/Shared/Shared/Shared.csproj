@@ -8,11 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Identity.Data\Identity.Data.csproj" />
-    <ProjectReference Include="..\Identity.DTOs\Identity.DTOs.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.3.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.13" />
   </ItemGroup>
 
 </Project>

@@ -10,36 +10,36 @@ namespace Identity.Data.Configurations
         {
             builder.ToTable("sessions", "identity");
 
-            builder.HasKey(u => u.Id).HasName("pk_sessions");
+            builder.HasKey(s => s.Id).HasName("pk_sessions");
 
-            builder.Property(u => u.Id)
+            builder.Property(s => s.Id)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id");
 
-            builder.Property(u => u.UserId)
+            builder.Property(s => s.UserId)
                 .IsRequired()
                 .HasColumnName("user_id");
 
-            builder.Property(u => u.TokenHash)
+            builder.Property(s => s.TokenHash)
                 .HasMaxLength(255)
                 .IsRequired()
                 .HasColumnName("token_hash");
 
-            builder.Property(u => u.DeviceInfo)
+            builder.Property(s => s.DeviceInfo)
                 .HasMaxLength(50)
                 .HasColumnName("device_info");
 
-            builder.Property(u => u.IpAddress)
+            builder.Property(s => s.IpAddress)
                 .HasMaxLength(50)
                 .HasColumnName("ip_address");
 
-            builder.Property(u => u.CreatedAt)
+            builder.Property(s => s.CreatedAt)
                 .HasColumnName("created_at");
 
-            builder.Property(u => u.ExpiresAt)
+            builder.Property(s => s.ExpiresAt)
                 .HasColumnName("expires_at");
 
-            builder.Property(u => u.RevokedAt)
+            builder.Property(s => s.RevokedAt)
                 .HasColumnName("revoked_at");
 
             builder.Property(s => s.ReplacedById)

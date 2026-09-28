@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Identity.DTOs\Identity.DTOs.csproj" />
+    <ProjectReference Include="..\Identity.UseCases\Identity.UseCases.csproj" />
+  </ItemGroup>
+
 </Project>
