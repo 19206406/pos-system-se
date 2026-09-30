@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Shared.Mediator;
 
 namespace Shared.CQRS
 {
-    internal interface ICommand
+    public interface ICommand : ICommand<Unit>
+    {
+    }
+    public interface ICommand<out TResponse> : IRequest<TResponse>
     {
     }
 }

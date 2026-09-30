@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Shared.Mediator;
 
 namespace Shared.CQRS
 {
-    internal interface IQuery
+    public interface IQuery<out TResponse> : IRequest<TResponse>
+        where TResponse : notnull
     {
     }
 }

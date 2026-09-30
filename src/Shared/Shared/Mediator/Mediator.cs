@@ -13,6 +13,7 @@ namespace Shared.Mediator
 
             var handlerInterfaceType = typeof(IRequestHandler<,>);
 
+            // inject services that use mediator automatically.
             var handlerTypes = assembly
                 .GetTypes()
                 .Where(type => !type.IsAbstract && type.IsInterface)
@@ -28,4 +29,7 @@ namespace Shared.Mediator
             return services; 
         }
     }
+
+
+    // builder.Services.AddMediator(); 
 }
