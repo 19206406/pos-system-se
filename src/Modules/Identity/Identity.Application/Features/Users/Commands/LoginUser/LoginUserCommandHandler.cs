@@ -1,4 +1,5 @@
 ﻿using Identity.Application.Contracts.Persistence;
+using Identity.Application.Contracts.Security;
 using Identity.Application.DTOs.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
@@ -8,10 +9,12 @@ namespace Identity.Application.Features.Users.Commands.LoginUser
     public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUserResponseDto>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public LoginUserCommandHandler(IUserRepository userRepository)
+        public LoginUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<LoginUserResponseDto> Handle(LoginUserCommand command, CancellationToken cancellationToken)

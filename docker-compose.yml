@@ -1,0 +1,9 @@
+services:
+  postgres-posdb:
+    image: postgres:16-alpine
+    networks:
+      - modular-monolith-network
+
+networks:
+  modular-monolith-network:
+    driver: bridge

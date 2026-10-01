@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/PosSystem.Api/PosSystem.Api.csproj" Id="a5e53dd5-d579-43b0-a454-3b25a6176e8b" />
+  </Folder>
   <Folder Name="/src/Modules/" />
   <Folder Name="/src/Modules/Identity/">
     <Project Path="src/Modules/Identity/Identity.Application/Identity.Application.csproj" />
@@ -12,4 +14,7 @@
   <Folder Name="/src/Shared/Shared/">
     <Project Path="src/Shared/Shared/Shared.csproj" />
   </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
 </Solution>
