@@ -1,6 +1,7 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Domain.Entities;
 using Identity.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Data.Repositories
 {
@@ -13,14 +14,16 @@ namespace Identity.Data.Repositories
             _context = context;
         }
 
-        public Task CreateUser(User user)
+        public async Task CreateUser(User user)
         {
-            throw new NotImplementedException();
+            _context.Add(user);
+            await _context.SaveChangesAsync(); 
         }
 
-        public Task<User?> GetUserByEmail(string email)
+        public async Task<User?> GetUserByEmail(string email)
         {
-            throw new NotImplementedException();
+            User user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            return user; 
         }
 
         public Task<User?> GetUserById(Guid id)

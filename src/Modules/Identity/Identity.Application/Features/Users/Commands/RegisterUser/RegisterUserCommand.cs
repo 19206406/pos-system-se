@@ -1,6 +1,8 @@
-﻿namespace Identity.Application.Features.Users.Commands.RegisterUser
+﻿using Identity.Application.DTOs.Responses;
+using Shared.CQRS;
+
+namespace Identity.Application.Features.Users.Commands.RegisterUser
 {
-    public class RegisterUserCommand
-    {
-    }
+    public record RegisterUserCommand(string FullName, string Email, string PhoneNumber, string Position) 
+        : ICommand<RegisterUserResponseDto>; 
 }
