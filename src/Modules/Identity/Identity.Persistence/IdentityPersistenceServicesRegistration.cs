@@ -1,4 +1,5 @@
-﻿using Identity.Application.Contracts.Persistence;
+﻿using Identity.Application.Constants;
+using Identity.Application.Contracts.Persistence;
 using Identity.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,13 +11,19 @@ namespace Identity.Persistence
     {
         public static IServiceCollection AddIdentityPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<IdentityDbContext>(options =>
-            {
-                options.UseNpgsql(configuration.GetConnectionString("PosSystemConnectionString"));
-            });
 
-            // the implementation is missing, it is better to separate it from the Context although I am not sure
-            services.AddScoped<IUnitOfWork>();
+            var connectionString = configuration.GetConnectionString("PosSystemDb")
+                ?? throw new InvalidOperationException(
+                    "The connection string 'PosSystemDb' is missing from the configuration.");
+
+            services.AddDbContext<IdentityDbContext>(options =>
+                options.UseNpgsql(connectionString, npgsql =>
+                {
+                    npgsql.MigrationsHistoryTable("__EFMigrationHistory", Schemas.Identity);
+                    npgsql.EnableRetryOnFailure(); 
+                })); 
+
+            services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IdentityDbContext>());
 
             services.AddScoped<IUserRepository, UserRepository>();
 
