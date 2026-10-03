@@ -26,7 +26,7 @@ namespace Identity.Persistence.Configurations.Entities
                 .HasColumnName("token_hash");
 
             builder.Property(s => s.DeviceInfo)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .HasColumnName("device_info");
 
             builder.Property(s => s.IpAddress)
@@ -50,8 +50,7 @@ namespace Identity.Persistence.Configurations.Entities
                 .IsUnique()
                 .HasDatabaseName("uq_sessions_token_hash");
 
-            builder.HasIndex(s => s.TokenHash)
-                .IsUnique()
+            builder.HasIndex(s => s.Id)
                 .HasDatabaseName("idx_sessions_user_id");
 
             builder.HasOne(s => s.User)

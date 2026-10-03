@@ -31,7 +31,8 @@ namespace Identity.Data.Configurations
                 .HasColumnName("token_type");
 
             builder.Property(u => u.CreatedAt)
-                .HasDefaultValueSql("now()"); 
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at"); 
 
             builder.Property(u => u.ExpiresAt)
                 .HasColumnName("expires_at");

@@ -52,6 +52,6 @@ namespace Identity.Persistence
         //-OutputDir Persistence/Migrations
 
 
-        // Add-Migration Initial -Context IdentityDbContext -Project Identity.Persistence -StartupProject PosSystem.Api -OutputDir Migration
+        // Add-Migration Initial -Context IdentityDbContext -Project Identity.Persistence -StartupProject PosSystem.Api -OutputDir Migrations
     }
 }
