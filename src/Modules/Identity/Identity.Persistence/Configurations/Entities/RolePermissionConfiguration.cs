@@ -8,7 +8,7 @@ namespace Identity.Persistence.Configurations.Entities
     {
         public void Configure(EntityTypeBuilder<RolePermission> builder)
         {
-            builder.ToTable("roles_permissions", "identity");
+            builder.ToTable("roles_permissions");
 
             builder.HasKey(rp => new { rp.RoleId, rp.PermissionId })
                 .HasName("pk_roles_permissions");

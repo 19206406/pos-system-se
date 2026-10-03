@@ -8,7 +8,7 @@ namespace Identity.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<PasswordToken> builder)
         {
-            builder.ToTable("password_tokens", "identity", t => 
+            builder.ToTable("password_tokens", t => 
                 t.HasCheckConstraint("chk_password_tokens_token_type", "token_type IN ('invite', 'reset')"));
 
             builder.HasKey(pt => pt.Id).HasName("pk_password_tokens");

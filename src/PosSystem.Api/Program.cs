@@ -1,25 +1,30 @@
 using Identity.Presentation;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddOpenApi(); 
 
 // modules 
-builder.Services.AddIdentityModule(builder.Configuration); 
+builder.Services.AddIdentityModule(builder.Configuration);
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+// configuration Scalar 
+app.MapOpenApi();
+app.MapScalarApiReference("/api-docs", options =>
 {
-    app.MapOpenApi();
-}
+    options.WithTitle("Pos-system API Documentation"); 
+}); 
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
 

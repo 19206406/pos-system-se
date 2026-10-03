@@ -7,7 +7,7 @@ using Shared.Mediator;
 namespace Identity.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/v1/users")]
+    [Route("api/identity/users")]
     public class UsersController : ControllerBase
     {
         private readonly ISender _sender;
@@ -18,11 +18,12 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateUser
+        public async Task<ActionResult<RegisterUserResponseDto>> CreateUser
             ([FromBody] RegisterUserRequestDTO request, CancellationToken cancellationToken)
         {
             var command = new RegisterUserCommand(request.FullName, request.Email, request.PhoneNumber, request.Position);
             RegisterUserResponseDto result = await _sender.Send(command, cancellationToken);
+            return Ok(result); 
         }
     }
 }

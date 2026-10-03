@@ -8,7 +8,7 @@ namespace Identity.Persistence.Configurations.Entities
     {
         public void Configure(EntityTypeBuilder<Session> builder)
         {
-            builder.ToTable("sessions", "identity");
+            builder.ToTable("sessions");
 
             builder.HasKey(s => s.Id).HasName("pk_sessions");
 
