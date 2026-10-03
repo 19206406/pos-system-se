@@ -1,6 +1,6 @@
 ﻿using Identity.Application.Constants;
 using Identity.Application.Contracts.Persistence;
-using Identity.Data.Repositories;
+using Identity.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +19,7 @@ namespace Identity.Persistence
             services.AddDbContext<IdentityDbContext>(options =>
                 options.UseNpgsql(connectionString, npgsql =>
                 {
-                    npgsql.MigrationsHistoryTable("__EFMigrationHistory", Schemas.Identity);
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", Schemas.Identity);
                     npgsql.EnableRetryOnFailure(); 
                 })); 
 

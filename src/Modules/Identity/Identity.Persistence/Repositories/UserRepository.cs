@@ -1,9 +1,8 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Domain.Entities;
-using Identity.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.Data.Repositories
+namespace Identity.Persistence.Repositories
 {
     public class UserRepository : IUserRepository
     {

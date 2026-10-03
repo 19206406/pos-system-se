@@ -44,5 +44,14 @@ namespace Identity.Persistence
                 await transaction.CommitAsync(cancellationToken);
             }); 
         }
+
+        //    Add-Migration Initial `
+        //-Context IdentityDbContext `
+        //-Project Identity.Persistence `
+        //-StartupProject PosSystem.Api `
+        //-OutputDir Persistence/Migrations
+
+
+        // Add-Migration Initial -Context IdentityDbContext -Project Identity.Persistence -StartupProject PosSystem.Api -OutputDir Migration
     }
 }
