@@ -12,12 +12,16 @@ namespace Identity.Application.Features.Users.Commands.ResentInvite
         private readonly IUserRepository _userRepository;
         private readonly ISecureTokenGenerator _tokenGenerator;
         private readonly ITokenHasher _tokenHasher;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ResentInviteCommandHandler(IUserRepository userRepository, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher)
+        public ResentInviteCommandHandler(
+            IUserRepository userRepository, ISecureTokenGenerator tokenGenerator,
+            ITokenHasher tokenHasher, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _tokenGenerator = tokenGenerator;
             _tokenHasher = tokenHasher;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Unit> Handle(ResentInviteCommand command, CancellationToken cancellationToken)
@@ -27,6 +31,11 @@ namespace Identity.Application.Features.Users.Commands.ResentInvite
 
             if (user is null)
                 throw new NotFoundException("user", command.Id.ToString());
+
+
+            foreach (var passwordToken in user.PasswordTokens)
+                passwordToken.UsedAt = DateTimeOffset.UtcNow; 
+
 
             var token = _tokenGenerator.GenerateToken();
             var tokenHash = _tokenHasher.Hash(token);
@@ -41,9 +50,9 @@ namespace Identity.Application.Features.Users.Commands.ResentInvite
 
             user.PasswordTokens.Add(newToken);
 
-            await _userRepository.UpdateUser();
+            await _unitOfWork.SaveChangesAsync(); 
 
-            // send email 
+            // send email with new Token 
 
             return Unit.Value; 
         }

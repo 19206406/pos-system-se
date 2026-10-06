@@ -11,5 +11,7 @@ namespace Identity.Application.Contracts.Persistence
         Task CreateUser(User user);
 
         Task UpdateUser();
+
+        Task<User?> GetUserWithPasswordTokens(Guid id); 
     }
 }

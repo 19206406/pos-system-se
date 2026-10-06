@@ -6,16 +6,15 @@ namespace Identity.Application.Features.Auth.Commands.SetUserPassword
     {
         public SetUserPasswordValidation()
         {
+
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("The email address cannot be empty.")
+                .EmailAddress().WithMessage("The value you entered is not a valid email address.")
+                .MaximumLength(150).WithMessage("The email cannot exceed 150 characters.");
+
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("The password cannot be empty.")
                 .MinimumLength(4).WithMessage("The password must be at least 4 characters long.");
-
-            //! This probably shouldn't be here. 
-            RuleFor(x => x.VerificationPassword)
-                .NotEmpty().WithMessage("The password confirmation cannot be left blank.");
-
-            RuleFor(x => x.Password)
-                .Equal(x => x.VerificationPassword).WithMessage("The password does not match the confirmation password");
         }
     }
 }

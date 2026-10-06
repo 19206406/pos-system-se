@@ -21,13 +21,23 @@ namespace Identity.Persistence.Repositories
 
         public async Task<User?> GetUserByEmail(string email)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
             return user; 
         }
 
-        public Task<User?> GetUserById(Guid id)
+        public async Task<User?> GetUserById(Guid id)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            return user; 
+        }
+
+        public async Task<User?> GetUserWithPasswordTokens(Guid id)
+        {
+            var user = await _context.Users
+                .Include(u => u.PasswordTokens.Where(pt => !pt.UsedAt.HasValue))
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            return user; 
         }
 
         public Task UpdateUser()
