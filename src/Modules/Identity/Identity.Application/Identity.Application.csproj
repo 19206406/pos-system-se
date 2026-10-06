@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Users\Querys\" />
+    <Folder Include="Features\Auth\Querys\" />
   </ItemGroup>
 
 </Project>

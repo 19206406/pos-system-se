@@ -10,6 +10,8 @@ namespace Identity.Infrastructure
         public static IServiceCollection AddIdentityInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IPasswordHasher, Argon2PasswordHasher>();
+            services.AddSingleton<ISecureTokenGenerator, RandomTokenGenerator>();
+            services.AddSingleton<ITokenHasher, Sha256TokenHasher>(); 
 
             return services; 
         } 

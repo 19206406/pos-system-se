@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Identity.Application.Features.Users.Commands.SetUserPassword
+namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 {
     public class SetUserPasswordValidation : AbstractValidator<SetUserPasswordCommand>
     {

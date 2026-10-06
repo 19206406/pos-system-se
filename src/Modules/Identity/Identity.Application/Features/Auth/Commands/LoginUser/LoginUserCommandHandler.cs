@@ -4,7 +4,7 @@ using Identity.Application.DTOs.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
-namespace Identity.Application.Features.Users.Commands.LoginUser
+namespace Identity.Application.Features.Auth.Commands.LoginUser
 {
     public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUserResponseDto>
     {

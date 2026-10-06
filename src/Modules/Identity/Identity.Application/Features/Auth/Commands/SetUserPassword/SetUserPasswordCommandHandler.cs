@@ -4,7 +4,7 @@ using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
-namespace Identity.Application.Features.Users.Commands.SetUserPassword
+namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 {
     public class SetUserPasswordCommandHandler : ICommandHandler<SetUserPasswordCommand, SetUserPasswordResponseDto>
     {

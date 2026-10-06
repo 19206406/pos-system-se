@@ -20,6 +20,7 @@ namespace Identity.Persistence.Configurations.Entities
                 .IsRequired()
                 .HasColumnName("user_id");
 
+            // refresh token with hash and do not save it in plain text
             builder.Property(s => s.TokenHash)
                 .HasMaxLength(255)
                 .IsRequired()

@@ -1,12 +1,14 @@
-﻿namespace Shared.Exceptions.Common
-{
-    public class BaseException : Exception
-    {
-        public string Code { get; }
+﻿using Shared.Constants;
 
-        protected BaseException(string code, string message) : base(message)
+namespace Shared.Exceptions.Common
+{
+    public abstract class BaseException : Exception
+    {
+        public ErrorType ErrorType { get; }
+
+        protected BaseException(ErrorType errorType, string message) : base(message)
         {
-            Code = code; 
+            ErrorType = errorType; 
         }
     }
 }
