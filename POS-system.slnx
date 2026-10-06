@@ -1,10 +1,20 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/PosSystem.Api/PosSystem.Api.csproj" Id="a5e53dd5-d579-43b0-a454-3b25a6176e8b" />
+  </Folder>
   <Folder Name="/src/Modules/" />
   <Folder Name="/src/Modules/Identity/">
-    <Project Path="src/Modules/Identity/Identity.Api/Identity.Api.csproj" />
-    <Project Path="src/Modules/Identity/Identity.Data/Identity.Data.csproj" />
-    <Project Path="src/Modules/Identity/Identity.UseCases/Identity.UseCases.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Application/Identity.Application.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Domain/Identity.Domain.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Persistence/Identity.Persistence.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Presentation/Identity.Presentation.csproj" Id="93b1e6eb-fac7-4954-a779-08c8a5b670a8" />
   </Folder>
   <Folder Name="/src/Shared/" />
+  <Folder Name="/src/Shared/Shared/">
+    <Project Path="src/Shared/Shared/Shared.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
 </Solution>

@@ -1,0 +1,25 @@
+services:
+  postgres-posdb:
+    container_name: posdb
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=Sebastian@Pos123
+      - POSTGRES_DB=pos_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-posdb-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    command: >
+      postgres 
+      -c password_encryption=md5
+
+volumes:
+  postgres-posdb-data:
+    driver: local
