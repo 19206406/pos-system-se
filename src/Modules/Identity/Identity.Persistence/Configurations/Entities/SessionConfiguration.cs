@@ -51,11 +51,11 @@ namespace Identity.Persistence.Configurations.Entities
                 .IsUnique()
                 .HasDatabaseName("uq_sessions_token_hash");
 
-            builder.HasIndex(s => s.Id)
+            builder.HasIndex(s => s.UserId)
                 .HasDatabaseName("idx_sessions_user_id");
 
             builder.HasOne(s => s.User)
-                .WithMany(u => u.Sessiones)
+                .WithMany(u => u.Sessions)
                 .HasForeignKey(s => s.UserId)
                 .HasConstraintName("fk_sessions_users")
                 .OnDelete(DeleteBehavior.Cascade);
