@@ -13,7 +13,7 @@
         public DateTime UpdatedAt { get; set; }
 
         // navegation 
-        public ICollection<Session> Sessiones { get; set; } = new List<Session>();
+        public ICollection<Session> Sessions { get; set; } = new List<Session>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<PasswordToken> PasswordTokens { get; set; } = new List<PasswordToken>(); 
     }
