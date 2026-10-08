@@ -9,6 +9,7 @@ namespace Identity.Application.Features.Users.Commands.RegisterUser
     public class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, RegisterUserResponseDto>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ISecureTokenGenerator _tokenGenerator;
         private readonly ITokenHasher _tokenHasher;
 
@@ -16,6 +17,7 @@ namespace Identity.Application.Features.Users.Commands.RegisterUser
             IUserRepository userRepository, IUnitOfWork unitOfWork, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher)
         {
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
             _tokenGenerator = tokenGenerator;
             _tokenHasher = tokenHasher;
         }
@@ -46,7 +48,9 @@ namespace Identity.Application.Features.Users.Commands.RegisterUser
 
             user.PasswordTokens.Add(tokenInvite); 
 
-            await _userRepository.CreateUser(user); 
+            _userRepository.AddUser(user);
+
+            await _unitOfWork.SaveChangesAsync(); 
 
             // send email 
             

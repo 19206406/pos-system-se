@@ -27,15 +27,14 @@ namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 
         public async Task<SetUserPasswordResponseDto> Handle(SetUserPasswordCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserByEmail(command.Email);
+            var user = await _userRepository.GetByEmailAsync(command.Email);
 
             var tokenHash = _tokenHasher.Hash(command.Token);
 
             if (user is null || !user.IsActive)
                 throw new UnauthorizedException("You cannot perform the following action.");
 
-            var passwordToken = await _passwordTokenRepository
-                .GetPasswordToken(tokenHash);
+            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash);
 
             if (passwordToken is null)
                 throw new NotFoundException("password-token", command.Token.ToString());

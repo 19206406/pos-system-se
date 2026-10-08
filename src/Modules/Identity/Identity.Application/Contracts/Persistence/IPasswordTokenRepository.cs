@@ -4,8 +4,8 @@ namespace Identity.Application.Contracts.Persistence
 {
     public interface IPasswordTokenRepository
     {
-        Task<PasswordToken?> GetPasswordToken(string tokenHash); 
+        Task<PasswordToken?> GetByTokenAsync(string tokenHash); 
 
-        Task<List<PasswordToken>> GetPasswordTokensByUserId(Guid userId); 
+        Task<List<PasswordToken>> GetAllByUserIdAsync(Guid userId); 
     }
 }

@@ -13,18 +13,18 @@ namespace Identity.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<PasswordToken?> GetPasswordToken(string tokenHash)
+        public async Task<List<PasswordToken>> GetAllByUserIdAsync(Guid userId)
         {
-            var passwordToken = await _context.PasswordTokens.FirstOrDefaultAsync(pt => pt.TokenHash == tokenHash);
-            return passwordToken; 
-        }
-
-        public async Task<List<PasswordToken>> GetPasswordTokensByUserId(Guid userId)
-        {
-            var passwordTokens = await 
+            var passwordTokens = await
                 _context.PasswordTokens.Where(pt => pt.UserId == userId && !pt.UsedAt.HasValue).ToListAsync();
 
-            return passwordTokens; 
+            return passwordTokens;
+        }
+
+        public async Task<PasswordToken?> GetByTokenAsync(string tokenHash)
+        {
+            var passwordToken = await _context.PasswordTokens.FirstOrDefaultAsync(pt => pt.TokenHash == tokenHash);
+            return passwordToken;
         }
     }
 }

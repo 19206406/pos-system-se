@@ -19,7 +19,7 @@ namespace Identity.Application.Features.Auth.Commands.LoginUser
 
         public async Task<LoginUserResponseDto> Handle(LoginUserCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserByEmail(command.Email);
+            var user = await _userRepository.GetByEmailAsync(command.Email);
 
             if (user is null)
                 throw new NotFoundException("user", command.Email); 

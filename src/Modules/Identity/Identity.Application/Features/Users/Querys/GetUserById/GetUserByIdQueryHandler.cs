@@ -16,7 +16,7 @@ namespace Identity.Application.Features.Users.Querys.GetUserById
 
         public async Task<GetUserResponseDto> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserById(query.Id);
+            var user = await _userRepository.GetByIdAsync(query.Id);
 
             if (user is null)
                 throw new NotFoundException("user", query.Id.ToString());

@@ -26,12 +26,12 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 
         public async Task<bool> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserByEmail(command.Email);
+            var user = await _userRepository.GetByEmailAsync(command.Email);
 
             if (user is null)
                 return false;
 
-            var passwordTokens = await _passwordTokenRepository.GetPasswordTokensByUserId(user.Id);
+            var passwordTokens = await _passwordTokenRepository.GetAllByUserIdAsync(user.Id);
 
             foreach (var passwordToken in passwordTokens)
                 passwordToken.UsedAt = DateTimeOffset.UtcNow; 

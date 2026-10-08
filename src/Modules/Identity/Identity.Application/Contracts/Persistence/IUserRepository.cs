@@ -4,14 +4,12 @@ namespace Identity.Application.Contracts.Persistence
 {
     public interface IUserRepository 
     {
-        Task<User?> GetUserById(Guid id);
+        Task<User?> GetByIdAsync(Guid id);
 
-        Task<User?> GetUserByEmail(string email);
+        Task<User?> GetByEmailAsync(string email);
 
-        Task CreateUser(User user);
+        void AddUser(User user);
 
-        Task UpdateUser();
-
-        Task<User?> GetUserWithPasswordTokens(Guid id); 
+        Task<User?> GetWithPasswordTokensAsync(Guid id); 
     }
 }

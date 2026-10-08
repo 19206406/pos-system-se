@@ -27,7 +27,7 @@ namespace Identity.Application.Features.Users.Commands.ResentInvite
         public async Task<Unit> Handle(ResentInviteCommand command, CancellationToken cancellationToken)
         {
 
-            var user = await _userRepository.GetUserById(command.Id);
+            var user = await _userRepository.GetByIdAsync(command.Id);
 
             if (user is null)
                 throw new NotFoundException("user", command.Id.ToString());
