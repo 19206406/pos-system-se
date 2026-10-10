@@ -54,7 +54,9 @@ namespace Identity.Application.Features.Users.Commands.RegisterUser
 
             // send email 
             
-            return new RegisterUserResponseDto(user.Id); 
+            return new RegisterUserResponseDto(
+                user.Id, user.FullName, user.JobTitle, 
+                user.PhoneNumber, user.Email, user.CreatedAt); 
         }
     }
 }

@@ -1,4 +1,4 @@
 ﻿namespace Identity.Application.Dtos.Responses
 {
-    public record SetUserPasswordResponseDto(string FullName, string TokenType, DateTimeOffset UsedAt); 
+    public record SetUserPasswordResponseDto(string FullName, string Token, string TokenType, DateTimeOffset UsedAt); 
 }

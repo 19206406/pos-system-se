@@ -2,6 +2,7 @@
 using Identity.Application.Contracts.Security;
 using Identity.Domain.Entities;
 using Shared.CQRS;
+using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 {
@@ -14,8 +15,8 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
         private readonly IUnitOfWork _unitOfWork;
 
         public ForgotPasswordCommandHandler(
-            IUserRepository userRepository, ISecureTokenGenerator tokenGenerator, 
-            ITokenHasher tokenHasher, IPasswordTokenRepository passwordTokenRepository, IUnitOfWork unitOfWork)
+            IUserRepository userRepository, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher, 
+            IPasswordTokenRepository passwordTokenRepository, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _tokenGenerator = tokenGenerator;
@@ -26,28 +27,28 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 
         public async Task<bool> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByEmailAsync(command.Email);
+            var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
             if (user is null)
-                return false;
+                throw new UnauthorizedException("You cannot execute this action");
 
-            var passwordTokens = await _passwordTokenRepository.GetAllByUserIdAsync(user.Id);
+            DateTimeOffset nowUtc = DateTimeOffset.UtcNow; 
 
-            foreach (var passwordToken in passwordTokens)
-                passwordToken.UsedAt = DateTimeOffset.UtcNow; 
+            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, nowUtc, cancellationToken); 
 
             var token = _tokenGenerator.GenerateToken();
             var tokenHash = _tokenHasher.Hash(token);
 
             var newToken = new PasswordToken
             {
+                UserId = user.Id, 
                 TokenHash = tokenHash,
-                TokenType = "invite",
+                TokenType = "reset",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(72),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            user.PasswordTokens.Add(newToken);
+            _passwordTokenRepository.Add(newToken); 
 
             await _unitOfWork.SaveChangesAsync();
 

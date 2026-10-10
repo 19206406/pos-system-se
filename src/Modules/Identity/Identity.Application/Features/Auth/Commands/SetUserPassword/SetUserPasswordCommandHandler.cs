@@ -27,14 +27,14 @@ namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 
         public async Task<SetUserPasswordResponseDto> Handle(SetUserPasswordCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByEmailAsync(command.Email);
+            var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
             var tokenHash = _tokenHasher.Hash(command.Token);
 
             if (user is null || !user.IsActive)
                 throw new UnauthorizedException("You cannot perform the following action.");
 
-            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash);
+            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
 
             if (passwordToken is null)
                 throw new NotFoundException("password-token", command.Token.ToString());
@@ -51,7 +51,7 @@ namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 
             await _unitOfWork.SaveChangesAsync();
 
-            return new SetUserPasswordResponseDto(user.FullName, passwordToken.TokenType, usedAt);
+            return new SetUserPasswordResponseDto(user.FullName, command.Token, passwordToken.TokenType, usedAt);
         }
     }
 }

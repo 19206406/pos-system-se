@@ -21,7 +21,7 @@ namespace Identity.Application.Features.Auth.Commands.ValidateToken
         {
             var tokenHash = _tokenHasher.Hash(command.Token); 
 
-            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash);
+            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
 
             if (passwordToken is null)
                 throw new NotFoundException("password-token", command.Token.ToString());
