@@ -4,9 +4,9 @@ using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
-namespace Identity.Application.Features.Auth.Commands.ValidateToken
+namespace Identity.Application.Features.Auth.Queries.ValidateToken
 {
-    internal class ValidateTokenCommandHandler : ICommandHandler<ValidateTokenCommand, GetPasswordTokenResponseDto>
+    internal class ValidateTokenCommandHandler : IQueryHandler<ValidateTokenCommand, GetPasswordTokenResponseDto>
     {
         private readonly IPasswordTokenRepository _passwordTokenRepository;
         private readonly ITokenHasher _tokenHasher;
@@ -17,14 +17,14 @@ namespace Identity.Application.Features.Auth.Commands.ValidateToken
             _tokenHasher = tokenHasher;
         }
 
-        public async Task<GetPasswordTokenResponseDto> Handle(ValidateTokenCommand command, CancellationToken cancellationToken)
+        public async Task<GetPasswordTokenResponseDto> Handle(ValidateTokenCommand query, CancellationToken cancellationToken)
         {
-            var tokenHash = _tokenHasher.Hash(command.Token); 
+            var tokenHash = _tokenHasher.Hash(query.Token); 
 
             var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
 
             if (passwordToken is null)
-                throw new NotFoundException("password-token", command.Token.ToString());
+                throw new NotFoundException("password-token", query.Token.ToString());
 
             if (passwordToken.UsedAt.HasValue)
                 throw new ConflictException("The token is not valid to be used");

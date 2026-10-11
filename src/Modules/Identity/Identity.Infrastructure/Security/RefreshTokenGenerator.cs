@@ -28,5 +28,10 @@ namespace Identity.Infrastructure.Security
 
             return new GeneratedRefreshToken(plainText, _tokenHasher.Hash(plainText), expiresAt); 
         }
+
+        /// <summary>
+        /// The hash is not in this place since this implementation is in another place 
+        /// that is shared with other functionalities
+        /// </summary>
     }
 }

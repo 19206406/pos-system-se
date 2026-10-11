@@ -1,5 +1,4 @@
 ﻿using Identity.Application.Contracts.Persistence;
-using Identity.Application.Contracts.Services;
 using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +16,12 @@ namespace Identity.Persistence.Repositories
         public async Task AddAsync(Session session, CancellationToken cancellationToken)
         {
             await _context.Sessions.AddAsync(session, cancellationToken); 
+        }
+
+        public async Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _context.Sessions
+                .CountAsync(s => s.UserId == userId && s.RevokedAt == null); 
         }
 
         public async Task<Session?> GetByTokenHashAsync(string tokenHash, CancellationToken cancellationToken)

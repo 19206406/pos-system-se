@@ -32,9 +32,8 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
             if (user is null)
                 throw new UnauthorizedException("You cannot execute this action");
 
-            DateTimeOffset nowUtc = DateTimeOffset.UtcNow; 
-
-            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, nowUtc, cancellationToken); 
+            var now = DateTimeOffset.UtcNow; 
+            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken); 
 
             var token = _tokenGenerator.GenerateToken();
             var tokenHash = _tokenHasher.Hash(token);

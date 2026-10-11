@@ -6,20 +6,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton(TimeProvider.System); 
 
-// shared exception 
+
+/// <summary> shared exception </summary>
 builder.Services.AddGlobalExceptionHandling(); 
 
-// modules 
+/// <summary> modules </summary>
 builder.Services.AddIdentityModule(builder.Configuration);
 
 var app = builder.Build();
 
 app.UseExceptionHandler();
-
 app.UseStatusCodePages(); 
 
-// configuration Scalar 
+/// <summary> scalar configuration </summary>
 app.MapOpenApi();
 app.MapScalarApiReference("/api-docs", options =>
 {

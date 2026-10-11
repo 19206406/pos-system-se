@@ -6,7 +6,7 @@ using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 {
-    public class SetUserPasswordCommandHandler : ICommandHandler<SetUserPasswordCommand, SetUserPasswordResponseDto>
+    public class SetUserPasswordCommandHandler : ICommandHandler<SetUserPasswordCommand, SetPasswordResponseDto>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordTokenRepository _passwordTokenRepository;
@@ -25,22 +25,22 @@ namespace Identity.Application.Features.Auth.Commands.SetUserPassword
             _tokenHasher = tokenHasher;
         }
 
-        public async Task<SetUserPasswordResponseDto> Handle(SetUserPasswordCommand command, CancellationToken cancellationToken)
+        public async Task<SetPasswordResponseDto> Handle(SetUserPasswordCommand command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
             var tokenHash = _tokenHasher.Hash(command.Token);
 
             if (user is null || !user.IsActive)
-                throw new UnauthorizedException("You cannot perform the following action.");
+                throw new UnauthorizedException("You cannot perform the following action");
 
             var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
 
             if (passwordToken is null)
-                throw new NotFoundException("password-token", command.Token.ToString());
+                throw new UnauthorizedException("You cannot perform the following action");
 
-            if (passwordToken.UsedAt.HasValue || passwordToken.ExpiresAt <= DateTimeOffset.UtcNow)
-                throw new ConflictException("The token is not valid to be used");
+            if (passwordToken.UsedAt.HasValue || passwordToken.ExpiresAt <= DateTimeOffset.UtcNow || passwordToken.TokenType != "invite")
+                throw new InvalidTokenException("The token is not valid to be used");
 
             var password = _passwordHasher.Hash(command.Password);
 
@@ -51,7 +51,7 @@ namespace Identity.Application.Features.Auth.Commands.SetUserPassword
 
             await _unitOfWork.SaveChangesAsync();
 
-            return new SetUserPasswordResponseDto(user.FullName, command.Token, passwordToken.TokenType, usedAt);
+            return new SetPasswordResponseDto(user.FullName, command.Token, passwordToken.TokenType, usedAt);
         }
     }
 }

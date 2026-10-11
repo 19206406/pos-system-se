@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Identity.Application.Features.Auth.Commands.ValidateToken
+namespace Identity.Application.Features.Auth.Queries.ValidateToken
 {
     internal class ValidateTokenValidation : AbstractValidator<ValidateTokenCommand>
     {

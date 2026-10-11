@@ -41,7 +41,7 @@ namespace Identity.Infrastructure.Security
             };
 
             claims.AddRange(access.Roles.Select(r => new Claim(AuthClaimTypes.Role, r)));
-            claims.AddRange(access.Permissions.Select(p => new Claim(AuthClaimTypes.Permission, p));
+            claims.AddRange(access.Permissions.Select(p => new Claim(AuthClaimTypes.Permission, p)));
 
             var descriptor = new SecurityTokenDescriptor
             {

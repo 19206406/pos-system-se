@@ -4,6 +4,7 @@ using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.Authentication;
 using Identity.Domain.Entities;
+using Shared.Exceptions;
 
 namespace Identity.Application.Services
 {
@@ -60,28 +61,28 @@ namespace Identity.Application.Services
         public async Task<AuthTokensDto> RefreshSessionAsync(string refreshToken, ClientContext client, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
-                Console.WriteLine("I need a new Exception to token");
+                throw new UnauthorizedException("The update token is invalid or has expired."); 
 
             var now = Now();
             var current = await _sessionRepository.GetByTokenHashAsync(_tokenHasher.Hash(refreshToken), cancellationToken)
-                ?? throw new Exception(); 
+                ?? throw new UnauthorizedException("The update token is invalid or has expired.");
 
             if (current.RevokedAt.HasValue)
             {
                 if (current.ReplacedById.HasValue)
                     await _sessionRepository.RevokeAllActiveByUserAsync(current.UserId, now, cancellationToken);
 
-                throw new Exception(); 
+                throw new UnauthorizedException("The update token is invalid or has expired.");
             }
 
             if (now >= current.ExpiresAt)
-                throw new Exception(); 
+                throw new UnauthorizedException("The update token is invalid or has expired.");
 
             if (!current.User.IsActive)
             {
                 current.RevokedAt = now;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                throw new Exception(); 
+                throw new UnauthorizedException("The update token is invalid or has expired.");
             }
 
             var access = await _userAccessReader.GetByUserIdAsync(current.UserId, cancellationToken);

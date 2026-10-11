@@ -9,7 +9,7 @@ namespace Identity.Application.Contracts.Persistence
         /// <summary> Revokes atomically only if it remains unrevoked. Returns false if another request won the race </summary>
         Task<Session?> GetByTokenHashAsync(string tokenHash, CancellationToken cancellationToken); 
         Task<bool> TryMarkReplacedAsync(Guid sessionId, Guid replacedById, DateTime now, CancellationToken cancellationToken);
-        Task RevokeAllActiveByUserAsync(Guid userId, DateTime now, CancellationToken cancellationToken); 
-
+        Task RevokeAllActiveByUserAsync(Guid userId, DateTime now, CancellationToken cancellationToken);
+        Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken); 
     }
 }

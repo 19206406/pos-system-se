@@ -7,6 +7,7 @@
         Forbidden, 
         NotFound, 
         Conflict, 
-        Business
+        Business, 
+        InvalidToken
     }
 }

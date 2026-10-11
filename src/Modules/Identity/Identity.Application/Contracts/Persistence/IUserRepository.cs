@@ -5,11 +5,10 @@ namespace Identity.Application.Contracts.Persistence
     public interface IUserRepository 
     {
         Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
-
+        Task<User?> GetWithPasswordTokensAsync(Guid id, CancellationToken cancellationToken);
         void AddUser(User user);
-
-        Task<User?> GetWithPasswordTokensAsync(Guid id, CancellationToken cancellationToken); 
+        Task DisableAsync(Guid id, CancellationToken cancellationToken);
+        Task EnableAsync(Guid id, CancellationToken cancellationToken); 
     }
 }

@@ -83,8 +83,9 @@ namespace PosSystem.Api.ExceptionHandling
                 ErrorType.NotFound => (StatusCodes.Status404NotFound, "Resource not found."),
                 ErrorType.Conflict => (StatusCodes.Status409Conflict, "Conflict."),
                 ErrorType.Business => (StatusCodes.Status422UnprocessableEntity, "Business rule violation."),
+                ErrorType.InvalidToken => (StatusCodes.Status401Unauthorized, "Invalid token"), 
                 _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred."),
-            };
+            }; 
 
             return new ProblemDetails { Status = status, Title = title, Detail = exception.Message }; 
         }

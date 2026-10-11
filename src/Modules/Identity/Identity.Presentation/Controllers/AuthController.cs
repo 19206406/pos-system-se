@@ -38,11 +38,11 @@ namespace Identity.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<SetUserPasswordResponseDto>> SetUserPassword(
+        public async Task<ActionResult<SetPasswordResponseDto>> SetUserPassword(
             [FromBody] SetUserPasswordRequestDto request, CancellationToken cancellationToken)
         {
             var command = new SetUserPasswordCommand(request.Password, request.VerificationPassword, request.Email);
-            SetUserPasswordResponseDto result = await _sender.Send(command, cancellationToken);
+            SetPasswordResponseDto result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }
     }

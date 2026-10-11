@@ -18,6 +18,18 @@ namespace Identity.Persistence.Repositories
             _context.Users.Add(user);
         }
 
+        public async Task DisableAsync(Guid id, CancellationToken cancellationToken)
+        {
+            await _context.Users.Where(u => u.Id == id)
+                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, false)); 
+        }
+
+        public async Task EnableAsync(Guid id, CancellationToken cancellationToken)
+        {
+            await _context.Users.Where(u => u.Id == id)
+                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, true));
+        }
+
         public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
         {
             User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
