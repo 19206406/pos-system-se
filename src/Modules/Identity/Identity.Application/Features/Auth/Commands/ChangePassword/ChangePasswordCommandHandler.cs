@@ -56,6 +56,7 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
             var usedAt = DateTimeOffset.UtcNow;
             passwordToken.UsedAt = usedAt;
 
+            /// <summary>Log the user out of all sessions, because if they change their password, they'll have to log in again.</summary>
             await _sessionService.RevokeAllUserSessionAsync(user.Id, cancellationToken); 
             await _unitOfWork.SaveChangesAsync();
 

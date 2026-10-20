@@ -31,7 +31,6 @@ namespace Identity.Application.Services
             _timeProvider = timeProvider;
         }
 
-
         public async Task<AuthTokensDto> CreateSessionAsync(User user, ClientContext client, CancellationToken cancellationToken)
         {
             var now = Now();

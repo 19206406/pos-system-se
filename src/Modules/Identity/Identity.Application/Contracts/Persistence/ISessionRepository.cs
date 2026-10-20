@@ -10,6 +10,7 @@ namespace Identity.Application.Contracts.Persistence
         Task<Session?> GetByTokenHashAsync(string tokenHash, CancellationToken cancellationToken); 
         Task<bool> TryMarkReplacedAsync(Guid sessionId, Guid replacedById, DateTime now, CancellationToken cancellationToken);
         Task RevokeAllActiveByUserAsync(Guid userId, DateTime now, CancellationToken cancellationToken);
-        Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken); 
+        Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken);
+        Task<List<Session>> GetAllByUserAsync(Guid userId, CancellationToken cancellationToken); 
     }
 }

@@ -26,11 +26,11 @@ namespace Identity.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<LoginUserResponseDto>> LoginUser(
+        public async Task<ActionResult<AuthResponseDto>> LoginUser(
             [FromBody] LoginUserRequestDTO request, CancellationToken cancellationToken)
         {
             var command = new LoginUserCommand(request.Email, request.Password);
-            LoginUserResponseDto result = await _sender.Send(command, cancellationToken);
+            AuthResponseDto result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }
 
