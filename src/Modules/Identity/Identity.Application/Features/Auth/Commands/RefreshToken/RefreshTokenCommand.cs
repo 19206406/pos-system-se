@@ -1,7 +1,9 @@
-﻿using Identity.Application.DTOs.Responses;
+﻿using Identity.Application.Dtos.Authentication;
+using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Commands.RefreshToken
 {
-    internal record class RefreshTokenCommand(Guid id, string RefreshToken) : ICommand<AuthResponseDto>;
+    public sealed record RefreshTokenCommand(string RefreshToken, ClientContext Client) 
+        : ICommand<RefreshTokenResponse>;
 }

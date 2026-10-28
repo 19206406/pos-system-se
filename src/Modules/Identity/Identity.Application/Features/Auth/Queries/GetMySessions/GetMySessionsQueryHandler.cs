@@ -4,13 +4,15 @@ using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Queries.GetMySessions
 {
-    internal class GetMySessionsQueryHandler : IQueryHandler<GetMySessionsQuery, List<SessionResposeDto>>
+    internal class GetMySessionsQueryHandler : IQueryHandler<GetMySessionsQuery, GetMySessionsResponse>
     {
         private readonly ISessionRepository _sessionRepository;
+        private readonly TimeProvider _timeProvider;
 
-        public GetMySessionsQueryHandler(ISessionRepository sessionRepository)
+        public GetMySessionsQueryHandler(ISessionRepository sessionRepository, TimeProvider timeProvider)
         {
             _sessionRepository = sessionRepository;
+            _timeProvider = timeProvider;
         }
 
         /// <summary>
@@ -18,22 +20,18 @@ namespace Identity.Application.Features.Auth.Queries.GetMySessions
         /// without it, the action cannot be executed because the endpoint does not receive any parameters, 
         /// either in the body or in the header. 
         /// </summary>
-        public async Task<List<SessionResposeDto>> Handle(GetMySessionsQuery query, CancellationToken cancellationToken)
+        public async Task<GetMySessionsResponse> Handle(GetMySessionsQuery query, CancellationToken cancellationToken)
         {
-            var sessions = await _sessionRepository.GetAllByUserAsync(query.Id, cancellationToken);
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
+            var sessions = await _sessionRepository.GetActiveByUserAsync(query.UserId, now, cancellationToken);
 
-            List<SessionResposeDto> response = new List<SessionResposeDto>(); 
+            var items = sessions
+                .Select(s => new MySessionItem(
+                    s.Id, s.DeviceInfo, s.IpAddress, s.CreatedAt, s.ExpiresAt,
+                    IsCurrent: s.Id == query.CurrentSessionId))
+                .ToList();
 
-            foreach(var s in sessions)
-                response.Add(new SessionResposeDto(
-                    s.Id, 
-                    s.UserId, 
-                    s.DeviceInfo, 
-                    s.IpAddress, 
-                    s.CreatedAt, 
-                    s.ExpiresAt));
-
-            return response; 
+            return new GetMySessionsResponse(items);
         }
     }
 }

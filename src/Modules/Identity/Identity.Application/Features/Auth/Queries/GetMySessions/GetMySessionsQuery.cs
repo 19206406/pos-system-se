@@ -3,5 +3,5 @@ using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Queries.GetMySessions
 {
-    internal record GetMySessionsQuery(Guid Id) : IQuery<List<SessionResposeDto>>; 
+    public sealed record GetMySessionsQuery(Guid UserId, Guid CurrentSessionId) : IQuery<GetMySessionsResponse>; 
 }

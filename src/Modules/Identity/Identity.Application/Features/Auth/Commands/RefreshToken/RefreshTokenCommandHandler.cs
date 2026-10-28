@@ -1,40 +1,26 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Services;
-using Identity.Application.Dtos.Authentication;
-using Identity.Application.DTOs.Responses;
+using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
-using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.RefreshToken
 {
-    internal class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, AuthResponseDto>
+    internal class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, RefreshTokenResponse>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IAuthSessionService _sessionService;
+        private readonly IAuthSessionService _authSessionService;
 
-        public RefreshTokenCommandHandler(IUserRepository userRepository, IAuthSessionService sessionService)
+        public RefreshTokenCommandHandler(IAuthSessionService authSessionService)
         {
-            _userRepository = userRepository;
-            _sessionService = sessionService;
+            _authSessionService = authSessionService;
         }
 
-        public async Task<AuthResponseDto> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
+        public async Task<RefreshTokenResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(command.id, cancellationToken)
-                ?? throw new NotFoundException("user", command.id.ToString()); 
+            var tokens = await _authSessionService.RefreshSessionAsync(command.RefreshToken, command.Client, cancellationToken);
 
-            var client = new ClientContext("not delivered", "not delivered"); 
-
-            var auth = await _sessionService.RefreshSessionAsync(command.RefreshToken, client, cancellationToken); 
-
-            return new AuthResponseDto(
-                user.FullName,
-                user.Email,
-                auth.AccessToken,
-                auth.AccessTokenExpiresAt,
-                auth.RefreshToken,
-                auth.RefreshTokenExpiresAt,
-                true);
+            return new RefreshTokenResponse(
+                tokens.AccessToken, tokens.AccessTokenExpiresAt,
+                tokens.RefreshToken, tokens.RefreshTokenExpiresAt); 
         }
     }
 }

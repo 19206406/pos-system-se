@@ -7,18 +7,20 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
         public ChangePasswordValidation()
         {
 
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("The email address cannot be empty.")
-                .EmailAddress().WithMessage("The value you entered is not a valid email address.")
-                .MaximumLength(150).WithMessage("The email cannot exceed 150 characters.");
+            RuleFor(x => x.UserId).NotEmpty();
+            RuleFor(x => x.CurrentSessionId).NotEmpty();
 
-            RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("The password cannot be empty.")
-                .MinimumLength(4).WithMessage("The password must be at least 4 characters long.");
+            RuleFor(x => x.CurrentPassword)
+                .NotEmpty().WithMessage("La contraseña actual es obligatoria")
+                .MaximumLength(25); 
 
-            RuleFor(x => x.Token)
-                .NotEmpty().WithMessage("The token cannot be empty.")
-                .MaximumLength(255).WithMessage("The token cannot exceed 250 characters.");
+            RuleFor(x => x.NewPassword)
+                .NotEmpty().WithMessage("La contraseña nueva es obligatoria")
+                .MaximumLength(25);
+
+            RuleFor(x => x.NewPassword)
+                .NotEqual(x => x.CurrentPassword)
+                .WithMessage("La nueva contraseña debe ser diferente a la actual.");
         }
     }
 }

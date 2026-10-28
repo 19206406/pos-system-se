@@ -2,5 +2,5 @@
 
 namespace Identity.Application.Features.Auth.Commands.RevokeMySession
 {
-    internal record RevokeMySessionCommand(Guid Id) : ICommand; 
+    public sealed record RevokeMySessionCommand(Guid UserId, Guid SessionId) : ICommand; 
 }

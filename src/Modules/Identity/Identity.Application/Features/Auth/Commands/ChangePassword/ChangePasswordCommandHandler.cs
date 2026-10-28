@@ -4,63 +4,52 @@ using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
+using Shared.Mediator;
 
 namespace Identity.Application.Features.Auth.Commands.ChangePassword
 {
-    internal class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand, SetPasswordResponseDto>
+    internal class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IPasswordTokenRepository _passwordTokenRepository;
-        private readonly IAuthSessionService _sessionService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly ITokenHasher _tokenHasher;
+        private readonly TimeProvider _timeProvider;
+        private readonly IAuthSessionService _authSessionService;
 
         public ChangePasswordCommandHandler(
             IUserRepository userRepository, 
-            IPasswordTokenRepository passwordTokenRepository, 
-            IAuthSessionService sessionService,
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
+            TimeProvider timeProvider,
             IPasswordHasher passwordHasher, 
-            ITokenHasher tokenHasher)
+            IAuthSessionService authSessionService)
         {
             _userRepository = userRepository;
-            _passwordTokenRepository = passwordTokenRepository;
-            _sessionService = sessionService;
             _unitOfWork = unitOfWork;
+            _authSessionService = authSessionService;
             _passwordHasher = passwordHasher;
-            _tokenHasher = tokenHasher;
+            _timeProvider = timeProvider;
         }
 
-        public async Task<SetPasswordResponseDto> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
+            var user = await _userRepository.GetByIdAsync(command.UserId, cancellationToken)
+                ?? throw new NotFoundException("user", command.UserId.ToString());
 
-            var tokenHash = _tokenHasher.Hash(command.Token);
+            if (!user.IsActive || user.HashPassword is null)
+                throw new BusinessException("No es posible cambiar la constraseña de esta cuenta");
 
-            if (user is null || !user.IsActive)
+
+            if (!_passwordHasher.Verify(command.CurrentPassword, user.HashPassword))
                 throw new UnauthorizedException("You cannot perform the following action.");
 
-            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
 
-            if (passwordToken is null)
-                throw new NotFoundException("password-token", command.Token.ToString());
+            user.HashPassword = _passwordHasher.Hash(command.NewPassword);
+            user.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            if (passwordToken.UsedAt.HasValue || passwordToken.ExpiresAt <= DateTimeOffset.UtcNow)
-                throw new ConflictException("The token is not valid to be used");
+            await _authSessionService.RevokeOtherUserSessionsAsync(user.Id, command.CurrentSessionId, cancellationToken);
 
-            var password = _passwordHasher.Hash(command.Password);
-
-            user.HashPassword = password;
-
-            var usedAt = DateTimeOffset.UtcNow;
-            passwordToken.UsedAt = usedAt;
-
-            /// <summary>Log the user out of all sessions, because if they change their password, they'll have to log in again.</summary>
-            await _sessionService.RevokeAllUserSessionAsync(user.Id, cancellationToken); 
-            await _unitOfWork.SaveChangesAsync();
-
-            return new SetPasswordResponseDto(user.FullName, command.Token, passwordToken.TokenType, usedAt);
+            return Unit.Value; 
         }
     }
 }

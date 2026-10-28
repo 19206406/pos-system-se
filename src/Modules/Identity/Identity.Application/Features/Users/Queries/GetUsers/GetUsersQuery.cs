@@ -1,6 +1,7 @@
-﻿namespace Identity.Application.Features.Users.Queries.GetUsers
+﻿using Shared.CQRS;
+
+namespace Identity.Application.Features.Users.Queries.GetUsers
 {
-    internal class GetUsersQuery
-    {
-    }
+    public sealed record GetUsersQuery(string? Search, bool? IsActive, int Page, int PageSize)
+        : IQuery<GetUsersResponse>;
 }

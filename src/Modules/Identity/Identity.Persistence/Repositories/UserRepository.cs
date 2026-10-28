@@ -30,6 +30,9 @@ namespace Identity.Persistence.Repositories
                 .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, true));
         }
 
+        public async Task<bool> ExistAsync(Guid userId, CancellationToken cancellationToken) =>
+            await _context.Users.AnyAsync(u => u.Id == userId, cancellationToken); 
+
         public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
         {
             User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);

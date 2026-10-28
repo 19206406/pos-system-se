@@ -2,6 +2,6 @@
 {
     public static class Schemas
     {
-        public static string Identity { get; } = "identity  "; 
+        public static string Identity { get; } = "identity"; 
     }
 }

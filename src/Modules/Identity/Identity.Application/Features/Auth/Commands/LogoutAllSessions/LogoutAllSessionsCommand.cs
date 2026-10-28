@@ -2,5 +2,5 @@
 
 namespace Identity.Application.Features.Auth.Commands.LogoutAllSessions
 {
-    internal record LogoutAllSessionsCommand(Guid Id) : ICommand; 
+    public sealed record LogoutAllSessionsCommand(Guid UserId) : ICommand; 
 }
