@@ -11,19 +11,22 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISecureTokenGenerator _tokenGenerator;
         private readonly ITokenHasher _tokenHasher;
+        private readonly TimeProvider _timeProvider;
 
         public CreateUserCommandHandler(
-            IUserRepository userRepository, IUnitOfWork unitOfWork, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher)
+            IUserRepository userRepository, IUnitOfWork unitOfWork, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher, TimeProvider timeProvider)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _tokenGenerator = tokenGenerator;
             _tokenHasher = tokenHasher;
+            _timeProvider = timeProvider;
         }
 
         public async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken cancellationToken)
         {
 
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
             var token = _tokenGenerator.GenerateToken();
             var tokenHash = _tokenHasher.Hash(token);
 
@@ -31,8 +34,8 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
             {
                 TokenHash = tokenHash,
                 TokenType = "invite",
-                ExpiresAt = DateTimeOffset.UtcNow.AddHours(72),
-                CreatedAt = DateTimeOffset.UtcNow
+                ExpiresAt = now.AddHours(72),
+                CreatedAt = now
             }; 
 
             var user = new User
@@ -41,8 +44,8 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
                 PhoneNumber = command.FullName,
                 JobTitle = command.Position,
                 Email = command.Email,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             user.PasswordTokens.Add(tokenInvite); 

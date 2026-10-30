@@ -3,6 +3,6 @@
     public record ValidatePasswordTokenResponse(
         Guid Id, 
         string TokenType, 
-        DateTimeOffset CreatedAt, 
-        DateTimeOffset ExpiresAt); 
+        DateTime CreatedAt, 
+        DateTime ExpiresAt); 
 }

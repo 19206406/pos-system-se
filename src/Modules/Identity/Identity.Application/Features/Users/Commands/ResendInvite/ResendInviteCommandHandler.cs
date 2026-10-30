@@ -14,19 +14,21 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
         private readonly ISecureTokenGenerator _tokenGenerator;
         private readonly ITokenHasher _tokenHasher;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly TimeProvider _timeProvider;
 
         public ResendInviteCommandHandler(
             IUserRepository userRepository, 
             IPasswordTokenRepository passwordTokenRepository, 
             ISecureTokenGenerator tokenGenerator,
             ITokenHasher tokenHasher, 
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork, TimeProvider timeProvider)
         {
             _userRepository = userRepository;
             _passwordTokenRepository = passwordTokenRepository;
             _tokenGenerator = tokenGenerator;
             _tokenHasher = tokenHasher;
             _unitOfWork = unitOfWork;
+            _timeProvider = timeProvider;
         }
 
         public async Task<Unit> Handle(ResendInviteCommand command, CancellationToken cancellationToken)
@@ -37,7 +39,7 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
             if (user is null)
                 throw new NotFoundException("user", command.Id.ToString());
 
-            var now = DateTimeOffset.UtcNow;
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
             await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken); 
 
             var token = _tokenGenerator.GenerateToken();
@@ -47,8 +49,8 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
             {
                 TokenHash = tokenHash,
                 TokenType = "invite",
-                ExpiresAt = DateTimeOffset.UtcNow.AddHours(72),
-                CreatedAt = DateTimeOffset.UtcNow
+                ExpiresAt = now.AddHours(72),
+                CreatedAt = now
             };
 
             user.PasswordTokens.Add(newToken);

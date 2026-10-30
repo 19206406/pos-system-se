@@ -35,12 +35,12 @@ namespace Identity.Persistence.Repositories
             return passwordToken;
         }
 
-        public async Task RevokeAllActiveByUserAsync(Guid userId, DateTimeOffset now, CancellationToken cancellationToken)
+        public async Task RevokeAllActiveByUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken)
         {
             await _context.PasswordTokens
                 .Where(pt => pt.UserId == userId && pt.UsedAt == null)
                 .ExecuteUpdateAsync(pt => pt
-                    .SetProperty(x => x.UsedAt, now), cancellationToken); 
+                    .SetProperty(x => x.UsedAt, nowUtc), cancellationToken); 
         }
     }
 }

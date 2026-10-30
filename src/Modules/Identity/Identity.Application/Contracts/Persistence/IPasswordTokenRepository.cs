@@ -7,6 +7,6 @@ namespace Identity.Application.Contracts.Persistence
         Task<PasswordToken?> GetByTokenAsync(string tokenHash, CancellationToken cancellationToken); 
         Task<List<PasswordToken>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellationToken);
         void Add(PasswordToken passwordToken);
-        Task RevokeAllActiveByUserAsync(Guid userId, DateTimeOffset now, CancellationToken cancellationToken); 
+        Task RevokeAllActiveByUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken); 
     }
 }

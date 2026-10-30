@@ -48,7 +48,7 @@ Este archivo es la fuente de verdad sobre cómo está construido el proyecto y c
 - EF Core **Code First** con Fluent API (`IEntityTypeConfiguration<T>`), Npgsql, nombres en snake_case (`EFCore.NamingConventions`), un `DbContext` y un schema por módulo en una única base PostgreSQL.
 - `IdentityDbContext` implementa `IUnitOfWork`. Los repositorios de escritura usan tracking; las lecturas usan `AsNoTracking()` con proyección (`Select`) a DTOs.
 - Restricciones con nombre explícito: `pk_`, `fk_`, `uq_`, `idx_`, `chk_`. Preferir `VARCHAR + CHECK` sobre enums nativos de Postgres.
-- Fechas **siempre en UTC**. Hoy las entidades de Identity usan `DateTime`; las columnas son `timestamptz`. **Verificar** si el proyecto decidió `DateTimeOffset` y reportar la inconsistencia en lugar de cambiarla en silencio.
+- Fechas **siempre en UTC** y con `DateTime` (decisión D6 de la auditoría): todas las entidades usan `DateTime`, obtenido con `TimeProvider.GetUtcNow().UtcDateTime`; las columnas son `timestamptz`. No se usa `DateTimeOffset`.
 - El tiempo se obtiene con `TimeProvider` inyectado, nunca con `DateTime.UtcNow` directo en lógica de negocio.
 - Todo método asíncrono propaga `CancellationToken`.
 - Validación con **FluentValidation**, ejecutada antes del handler (pipeline), de modo que aplique sin importar quién llame.
