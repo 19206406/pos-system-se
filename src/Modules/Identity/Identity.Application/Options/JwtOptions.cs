@@ -13,7 +13,7 @@ namespace Identity.Application.Options
         [Required, MinLength(32)]
         public string SigningKey { get; init; } = null!;
         [Range(1, 60)]
-        public int AccessTokeLifetimeMinutes { get; init; }
+        public int AccessTokenLifetimeMinutes { get; init; }
         [Range(1, 90)]
         public int SessionAbsoluteLifetimeDays { get; init; }
         [Range(0, 120)] 

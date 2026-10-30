@@ -1,4 +1,5 @@
 ﻿using Identity.Application.Contracts.Authentication;
+using Identity.Application.Contracts.Security;
 using Identity.Application.Dtos.Authentication;
 using Identity.Application.Options;
 using Microsoft.Extensions.Options;
@@ -11,10 +12,10 @@ namespace Identity.Infrastructure.Security
     {
         private readonly JwtOptions _options;
         private readonly TimeProvider _timeProvider;
-        private readonly Sha256TokenHasher _tokenHasher;
+        private readonly ITokenHasher _tokenHasher;
         private const int TokenSizeInBytes = 64;
 
-        public RefreshTokenGenerator(IOptions<JwtOptions> options, TimeProvider timeProvider, Sha256TokenHasher tokenHasher)
+        public RefreshTokenGenerator(IOptions<JwtOptions> options, TimeProvider timeProvider, ITokenHasher tokenHasher)
         {
             _options = options.Value;
             _timeProvider = timeProvider;

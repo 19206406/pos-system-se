@@ -29,7 +29,7 @@ namespace Identity.Infrastructure.Security
         public AccessToken Generate(User user, Guid sessionId, UserAccessDto access)
         {
             var now = _timeProvider.GetUtcNow().UtcDateTime;
-            var expiresAt = now.AddMinutes(_options.AccessTokeLifetimeMinutes);
+            var expiresAt = now.AddMinutes(_options.AccessTokenLifetimeMinutes);
 
             var claims = new List<Claim>
             {
