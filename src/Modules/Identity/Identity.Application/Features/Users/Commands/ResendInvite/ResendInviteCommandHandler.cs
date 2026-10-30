@@ -53,7 +53,7 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
 
             user.PasswordTokens.Add(newToken);
 
-            await _unitOfWork.SaveChangesAsync(); 
+            await _unitOfWork.SaveChangesAsync(cancellationToken); 
 
             // send email with new Token 
 

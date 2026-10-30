@@ -49,7 +49,7 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 
             _passwordTokenRepository.Add(newToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;
         }

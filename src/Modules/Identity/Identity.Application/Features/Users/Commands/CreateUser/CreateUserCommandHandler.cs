@@ -49,7 +49,7 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
 
             _userRepository.AddUser(user);
 
-            await _unitOfWork.SaveChangesAsync(); 
+            await _unitOfWork.SaveChangesAsync(cancellationToken); 
 
             // send email 
             

@@ -21,13 +21,13 @@ namespace Identity.Persistence.Repositories
         public async Task DisableAsync(Guid id, CancellationToken cancellationToken)
         {
             await _context.Users.Where(u => u.Id == id)
-                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, false)); 
+                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, false), cancellationToken); 
         }
 
         public async Task EnableAsync(Guid id, CancellationToken cancellationToken)
         {
             await _context.Users.Where(u => u.Id == id)
-                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, true));
+                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, true), cancellationToken);
         }
 
         public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ namespace Identity.Persistence.Repositories
 
         public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
             return user;
         }
 

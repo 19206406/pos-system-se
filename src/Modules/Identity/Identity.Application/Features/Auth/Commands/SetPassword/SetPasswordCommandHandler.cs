@@ -48,7 +48,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
             var usedAt = DateTimeOffset.UtcNow;
             passwordToken.UsedAt = usedAt;
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new SetPasswordResponse(user.FullName, command.Token, passwordToken.TokenType, usedAt);
         }

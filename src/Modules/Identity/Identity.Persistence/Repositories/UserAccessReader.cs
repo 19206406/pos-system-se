@@ -28,7 +28,7 @@ namespace Identity.Persistence.Repositories
                 .SelectMany(ur => ur.Role.RolePermissions)
                 .Select(rp => rp.Permission.Identifier)
                 .Distinct()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return new UserAccessDto(roles, permissions); 
         }
