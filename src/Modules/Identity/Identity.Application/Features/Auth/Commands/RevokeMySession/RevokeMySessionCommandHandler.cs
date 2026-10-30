@@ -16,7 +16,8 @@ namespace Identity.Application.Features.Auth.Commands.RevokeMySession
 
         public async Task<Unit> Handle(RevokeMySessionCommand command, CancellationToken cancellationToken)
         {
-            var revoked = await _authSessionService.RevokeSessionByIdAsync(command.UserId, command.SessionId, cancellationToken)
+            var revoked = await _authSessionService
+                .RevokeSessionByIdAsync(command.UserId, command.SessionId, cancellationToken); 
                 
             if (!revoked) 
                 throw new NotFoundException("session", command.SessionId.ToString());

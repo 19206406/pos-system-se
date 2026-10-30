@@ -2,7 +2,7 @@
 
 namespace Identity.Application.Features.Auth.Commands.ChangePassword
 {
-    internal class ChangePasswordValidation : AbstractValidator<ChangePasswordCommand>
+    public sealed class ChangePasswordValidation : AbstractValidator<ChangePasswordCommand>
     {
         public ChangePasswordValidation()
         {
@@ -12,7 +12,7 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
 
             RuleFor(x => x.CurrentPassword)
                 .NotEmpty().WithMessage("La contraseña actual es obligatoria")
-                .MaximumLength(25); 
+                .MaximumLength(25);
 
             RuleFor(x => x.NewPassword)
                 .NotEmpty().WithMessage("La contraseña nueva es obligatoria")

@@ -1,5 +1,6 @@
 ﻿using Identity.Application.Contracts.Services;
 using Identity.Application.Features.Users.Commands.CreateUser;
+using Identity.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Mediator;
 
@@ -19,7 +20,7 @@ namespace Identity.Application
             services.AddMediator(assembly);
             services.AddMediatorValidation(assembly);
 
-            services.AddScoped<IAuthSessionService, IAuthSessionService>(); 
+            services.AddScoped<IAuthSessionService, AuthSessionService>(); 
 
             return services;
         }

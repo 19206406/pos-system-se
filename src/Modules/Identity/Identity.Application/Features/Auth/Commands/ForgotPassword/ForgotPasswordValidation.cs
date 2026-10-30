@@ -2,7 +2,7 @@
 
 namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 {
-    internal class ForgotPasswordValidation : AbstractValidator<ForgotPasswordCommand>
+    public sealed class ForgotPasswordValidation : AbstractValidator<ForgotPasswordCommand>
     {
         public ForgotPasswordValidation()
         {

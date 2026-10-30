@@ -4,7 +4,6 @@ using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.Authentication;
 using Identity.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 
 namespace Identity.Application.Services
@@ -20,7 +19,7 @@ namespace Identity.Application.Services
         private readonly TimeProvider _timeProvider;
 
         public AuthSessionService(
-            ISessionRepository sessionRepository, IUserAccessReader userAccessReader, IAccessTokenGenerator accessTokenGenerator, 
+            ISessionRepository sessionRepository, IUserAccessReader userAccessReader, IAccessTokenGenerator accessTokenGenerator,
             IRefreshTokenGenerator refreshTokenGenerator, ITokenHasher tokenHasher, IUnitOfWork unitOfWork, TimeProvider timeProvider)
         {
             _sessionRepository = sessionRepository;
@@ -54,14 +53,14 @@ namespace Identity.Application.Services
             var accessToken = _accessTokenGenerator.Generate(user, session.Id, access);
 
             return new AuthTokensDto(
-                accessToken.Value, accessToken.ExpiresAt, 
-                refreshToken.PlainText, session.ExpiresAt); 
+                accessToken.Value, accessToken.ExpiresAt,
+                refreshToken.PlainText, session.ExpiresAt);
         }
 
         public async Task<AuthTokensDto> RefreshSessionAsync(string refreshToken, ClientContext client, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
-                throw new UnauthorizedException("The update token is invalid or has expired."); 
+                throw new UnauthorizedException("The update token is invalid or has expired.");
 
             var now = Now();
             var current = await _sessionRepository.GetByTokenHashAsync(_tokenHasher.Hash(refreshToken), cancellationToken)
@@ -101,27 +100,26 @@ namespace Identity.Application.Services
             await _sessionRepository.AddAsync(session, cancellationToken);
             await _unitOfWork.SaveChangesAsync();
 
-            var rotated = await _sessionRepository.TryMarkAsReplacedAsync(current.Id, session.Id, now, cancellationToken); 
+            var rotated = await _sessionRepository.TryMarkAsReplacedAsync(current.Id, session.Id, now, cancellationToken);
             if (!rotated)
             {
                 session.RevokedAt = now;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                throw new Exception(); 
+                throw new Exception();
             }
 
             var accessToken = _accessTokenGenerator.Generate(current.User, session.Id, access);
 
             return new AuthTokensDto(
-                accessToken.Value, accessToken.ExpiresAt, 
-                nextRefreshToken.PlainText, session.ExpiresAt); 
+                accessToken.Value, accessToken.ExpiresAt,
+                nextRefreshToken.PlainText, session.ExpiresAt);
         }
 
-        public async Task RevokeAllUserSessionAsync(Guid userId, CancellationToken cancellationToken)
-        {
-            await _sessionRepository.RevokeAllActiveByUserAsync(userId, Now(), cancellationToken); 
-        }
+        public async Task RevokeAllUserSessionAsync(Guid userId, CancellationToken cancellationToken) =>
+            await _sessionRepository.RevokeAllActiveByUserAsync(userId, Now(), cancellationToken);
 
-        public async Task RevokeOtherUserSessionsAsync(Guid userId, Guid currentSessionId, CancellationToken cancellationToken) => 
+
+        public async Task RevokeOtherUserSessionsAsync(Guid userId, Guid currentSessionId, CancellationToken cancellationToken) =>
             await _sessionRepository.RevokeAllActiveByUserExceptAsync(userId, currentSessionId, Now(), cancellationToken);
 
         public async Task RevokeSessionAsync(string refreshToken, CancellationToken cancellationToken)
@@ -132,12 +130,12 @@ namespace Identity.Application.Services
             if (session is null || Now() >= session.RevokedAt) return;
 
             session.RevokedAt = Now();
-            await _unitOfWork.SaveChangesAsync(); 
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<bool> RevokeSessionByIdAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken) =>
-            await _sessionRepository.RevokeActiveByIdAsync(userId, sessionId, Now(), cancellationToken); 
+            await _sessionRepository.RevokeActiveByIdAsync(userId, sessionId, Now(), cancellationToken);
 
-        private DateTime Now() => _timeProvider.GetUtcNow().UtcDateTime; 
+        private DateTime Now() => _timeProvider.GetUtcNow().UtcDateTime;
     }
 }

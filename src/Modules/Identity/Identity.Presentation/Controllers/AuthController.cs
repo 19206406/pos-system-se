@@ -3,7 +3,7 @@ using Identity.Application.Dtos.Responses;
 using Identity.Application.DTOs.Request;
 using Identity.Application.DTOs.Responses;
 using Identity.Application.Features.Auth.Commands.LoginUser;
-using Identity.Application.Features.Auth.Commands.SetUserPassword;
+using Identity.Application.Features.Auth.Commands.SetPassword;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Mediator;
@@ -41,7 +41,7 @@ namespace Identity.Presentation.Controllers
         public async Task<ActionResult<SetPasswordResponseDto>> SetUserPassword(
             [FromBody] SetUserPasswordRequestDto request, CancellationToken cancellationToken)
         {
-            var command = new SetUserPasswordCommand(request.Password, request.VerificationPassword, request.Email);
+            var command = new SetUserPasswordCommand(request.Email, request.Password, request.VerificationPassword);
             SetPasswordResponseDto result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }

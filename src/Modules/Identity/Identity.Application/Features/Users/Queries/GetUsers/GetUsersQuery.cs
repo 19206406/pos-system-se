@@ -1,4 +1,5 @@
-﻿using Shared.CQRS;
+﻿using Identity.Application.Dtos.Responses;
+using Shared.CQRS;
 
 namespace Identity.Application.Features.Users.Queries.GetUsers
 {

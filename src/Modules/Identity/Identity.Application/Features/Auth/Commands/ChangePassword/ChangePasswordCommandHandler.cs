@@ -1,14 +1,13 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 using Shared.Mediator;
 
 namespace Identity.Application.Features.Auth.Commands.ChangePassword
 {
-    internal class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand>
+    public sealed class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand>
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -17,10 +16,10 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
         private readonly IAuthSessionService _authSessionService;
 
         public ChangePasswordCommandHandler(
-            IUserRepository userRepository, 
+            IUserRepository userRepository,
             IUnitOfWork unitOfWork,
             TimeProvider timeProvider,
-            IPasswordHasher passwordHasher, 
+            IPasswordHasher passwordHasher,
             IAuthSessionService authSessionService)
         {
             _userRepository = userRepository;
@@ -49,7 +48,7 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
 
             await _authSessionService.RevokeOtherUserSessionsAsync(user.Id, command.CurrentSessionId, cancellationToken);
 
-            return Unit.Value; 
+            return Unit.Value;
         }
     }
 }

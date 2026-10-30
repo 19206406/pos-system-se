@@ -6,7 +6,7 @@ using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 {
-    internal class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand, bool>
+    public sealed class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand, bool>
     {
         private readonly IUserRepository _userRepository;
         private readonly ISecureTokenGenerator _tokenGenerator;
@@ -15,7 +15,7 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
         private readonly IUnitOfWork _unitOfWork;
 
         public ForgotPasswordCommandHandler(
-            IUserRepository userRepository, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher, 
+            IUserRepository userRepository, ISecureTokenGenerator tokenGenerator, ITokenHasher tokenHasher,
             IPasswordTokenRepository passwordTokenRepository, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
@@ -32,26 +32,26 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
             if (user is null)
                 throw new UnauthorizedException("You cannot execute this action");
 
-            var now = DateTimeOffset.UtcNow; 
-            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken); 
+            var now = DateTimeOffset.UtcNow;
+            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken);
 
             var token = _tokenGenerator.GenerateToken();
             var tokenHash = _tokenHasher.Hash(token);
 
             var newToken = new PasswordToken
             {
-                UserId = user.Id, 
+                UserId = user.Id,
                 TokenHash = tokenHash,
                 TokenType = "reset",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(72),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            _passwordTokenRepository.Add(newToken); 
+            _passwordTokenRepository.Add(newToken);
 
             await _unitOfWork.SaveChangesAsync();
 
-            return true; 
+            return true;
         }
     }
 }
