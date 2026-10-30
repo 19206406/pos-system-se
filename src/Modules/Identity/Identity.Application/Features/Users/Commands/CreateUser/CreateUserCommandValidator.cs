@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Users.Commands.CreateUser
 {
-    public class CreateUserValidator : AbstractValidator<CreateUserCommand>
+    public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {
-        public CreateUserValidator()
+        public CreateUserCommandValidator()
         {
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage("The new user's name cannot be empty.")

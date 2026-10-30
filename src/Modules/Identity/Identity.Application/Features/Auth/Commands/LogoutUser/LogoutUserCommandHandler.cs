@@ -4,20 +4,20 @@ using Shared.CQRS;
 using Shared.Exceptions;
 using Shared.Mediator;
 
-namespace Identity.Application.Features.Auth.Commands.LogoutSession
+namespace Identity.Application.Features.Auth.Commands.LogoutUser
 {
-    internal class LogoutSessionCommandHandler : ICommandHandler<LogoutSessionCommand>
+    public sealed class LogoutUserCommandHandler : ICommandHandler<LogoutUserCommand>
     {
         private readonly IUserRepository _userRepository;
         private readonly IAuthSessionService _sessionService;
 
-        public LogoutSessionCommandHandler(IUserRepository userRepository, IAuthSessionService sessionService)
+        public LogoutUserCommandHandler(IUserRepository userRepository, IAuthSessionService sessionService)
         {
             _userRepository = userRepository;
             _sessionService = sessionService;
         }
 
-        public async Task<Unit> Handle(LogoutSessionCommand command, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(LogoutUserCommand command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
 

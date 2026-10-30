@@ -6,7 +6,7 @@ using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.SetPassword
 {
-    public class SetUserPasswordCommandHandler : ICommandHandler<SetUserPasswordCommand, SetPasswordResponseDto>
+    public sealed class SetPasswordCommandHandler : ICommandHandler<SetPasswordCommand, SetPasswordResponseDto>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordTokenRepository _passwordTokenRepository;
@@ -14,7 +14,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenHasher _tokenHasher;
 
-        public SetUserPasswordCommandHandler(
+        public SetPasswordCommandHandler(
             IUserRepository userRepository, IPasswordTokenRepository passwordTokenRepository, IUnitOfWork unitOfWork,
             IPasswordHasher passwordHasher, ITokenHasher tokenHasher)
         {
@@ -25,7 +25,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
             _tokenHasher = tokenHasher;
         }
 
-        public async Task<SetPasswordResponseDto> Handle(SetUserPasswordCommand command, CancellationToken cancellationToken)
+        public async Task<SetPasswordResponseDto> Handle(SetPasswordCommand command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 

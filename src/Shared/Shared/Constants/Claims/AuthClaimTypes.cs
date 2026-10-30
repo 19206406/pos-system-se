@@ -2,7 +2,7 @@
 {
     public static class AuthClaimTypes
     {
-        public const string SessionsId = "sid";
+        public const string SessionId = "sid";
         public const string Role = "role";
         public const string Permission = "permission"; 
     }

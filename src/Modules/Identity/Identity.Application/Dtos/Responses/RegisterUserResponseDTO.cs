@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.DTOs.Responses
+﻿namespace Identity.Application.Dtos.Responses
 {
     public record RegisterUserResponseDto(
         Guid Id, string FullName, string JobTitle, 

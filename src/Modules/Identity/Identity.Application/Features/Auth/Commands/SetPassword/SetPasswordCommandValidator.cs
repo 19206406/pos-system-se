@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Auth.Commands.SetPassword
 {
-    public class SetUserPasswordValidation : AbstractValidator<SetUserPasswordCommand>
+    public sealed class SetPasswordCommandValidator : AbstractValidator<SetPasswordCommand>
     {
-        public SetUserPasswordValidation()
+        public SetPasswordCommandValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("The email address cannot be empty.")

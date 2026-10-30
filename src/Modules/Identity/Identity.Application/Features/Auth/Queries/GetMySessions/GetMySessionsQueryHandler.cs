@@ -4,7 +4,7 @@ using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Queries.GetMySessions
 {
-    internal class GetMySessionsQueryHandler : IQueryHandler<GetMySessionsQuery, GetMySessionsResponse>
+    public sealed class GetMySessionsQueryHandler : IQueryHandler<GetMySessionsQuery, GetMySessionsResponse>
     {
         private readonly ISessionRepository _sessionRepository;
         private readonly TimeProvider _timeProvider;

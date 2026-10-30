@@ -3,5 +3,5 @@ using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
 {
-    internal record ValidatePasswordTokenQuery(string Token) : IQuery<GetPasswordTokenResponseDto>; 
+    public sealed record ValidatePasswordTokenQuery(string Token) : IQuery<GetPasswordTokenResponseDto>; 
 }

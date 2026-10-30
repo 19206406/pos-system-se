@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.DTOs.Responses
+﻿namespace Identity.Application.Dtos.Responses
 {
     public record AuthResponseDto(
         string FullName, 

@@ -1,4 +1,4 @@
-﻿using Identity.Application.DTOs.Responses;
+﻿using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Users.Commands.CreateUser

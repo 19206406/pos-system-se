@@ -37,7 +37,7 @@ namespace Identity.Infrastructure.Security
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Email, user.Email),
                 new(JwtRegisteredClaimNames.Name, user.FullName),
-                new(AuthClaimTypes.SessionsId, sessionId.ToString())
+                new(AuthClaimTypes.SessionId, sessionId.ToString())
             };
 
             claims.AddRange(access.Roles.Select(r => new Claim(AuthClaimTypes.Role, r)));

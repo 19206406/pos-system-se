@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Auth.Queries.GetCurrentUser
 {
-    public sealed class GetCurrentUserValidator : AbstractValidator<GetCurrentUserQuery>
+    public sealed class GetCurrentUserQueryValidator : AbstractValidator<GetCurrentUserQuery>
     {
-        public GetCurrentUserValidator()
+        public GetCurrentUserQueryValidator()
         {
             RuleFor(x => x.UserId).NotEmpty(); 
         }

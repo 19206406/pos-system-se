@@ -5,13 +5,13 @@ using Shared.Mediator;
 
 namespace Identity.Application.Features.Users.Commands.ReactivateUser
 {
-    public record class ReactivateUserCommnadHandler : ICommandHandler<ReactivateUserCommand>
+    public sealed class ReactivateUserCommandHandler : ICommandHandler<ReactivateUserCommand>
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly TimeProvider _timeProvider;
 
-        public ReactivateUserCommnadHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
+        public ReactivateUserCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, TimeProvider timeProvider)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;

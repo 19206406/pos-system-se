@@ -1,7 +1,5 @@
 ﻿using Identity.Application.Dtos.Request;
 using Identity.Application.Dtos.Responses;
-using Identity.Application.DTOs.Request;
-using Identity.Application.DTOs.Responses;
 using Identity.Application.Features.Auth.Commands.LoginUser;
 using Identity.Application.Features.Auth.Commands.SetPassword;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +39,7 @@ namespace Identity.Presentation.Controllers
         public async Task<ActionResult<SetPasswordResponseDto>> SetUserPassword(
             [FromBody] SetUserPasswordRequestDto request, CancellationToken cancellationToken)
         {
-            var command = new SetUserPasswordCommand(request.Email, request.Password, request.VerificationPassword);
+            var command = new SetPasswordCommand(request.Email, request.Password, request.VerificationPassword);
             SetPasswordResponseDto result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }

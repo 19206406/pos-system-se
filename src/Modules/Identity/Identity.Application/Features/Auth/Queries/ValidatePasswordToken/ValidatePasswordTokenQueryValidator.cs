@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
 {
-    internal class ValidatePasswordTokenValidation : AbstractValidator<ValidatePasswordTokenQuery>
+    public sealed class ValidatePasswordTokenQueryValidator : AbstractValidator<ValidatePasswordTokenQuery>
     {
-        public ValidatePasswordTokenValidation()
+        public ValidatePasswordTokenQueryValidator()
         {
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("The token cannot be empty.")

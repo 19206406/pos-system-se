@@ -1,12 +1,12 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
-using Identity.Application.DTOs.Responses;
+using Identity.Application.Dtos.Responses;
 using Identity.Domain.Entities;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Users.Commands.CreateUser
 {
-    public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, RegisterUserResponseDto>
+    public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, RegisterUserResponseDto>
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;

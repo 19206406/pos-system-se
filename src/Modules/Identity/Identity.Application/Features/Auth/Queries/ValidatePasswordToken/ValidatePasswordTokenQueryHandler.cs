@@ -6,7 +6,7 @@ using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
 {
-    internal class ValidatePasswordTokenQueryHandler : IQueryHandler<ValidatePasswordTokenQuery, GetPasswordTokenResponseDto>
+    public sealed class ValidatePasswordTokenQueryHandler : IQueryHandler<ValidatePasswordTokenQuery, GetPasswordTokenResponseDto>
     {
         private readonly IPasswordTokenRepository _passwordTokenRepository;
         private readonly ITokenHasher _tokenHasher;

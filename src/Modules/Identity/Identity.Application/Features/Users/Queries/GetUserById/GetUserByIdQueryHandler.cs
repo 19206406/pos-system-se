@@ -3,9 +3,9 @@ using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
-namespace Identity.Application.Features.Users.Querys.GetUserById
+namespace Identity.Application.Features.Users.Queries.GetUserById
 {
-    internal class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, GetUserResponseDto>
+    public sealed class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, GetUserResponseDto>
     {
         private readonly IUserRepository _userRepository;
 

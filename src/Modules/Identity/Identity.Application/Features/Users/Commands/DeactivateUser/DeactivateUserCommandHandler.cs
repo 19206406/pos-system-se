@@ -6,7 +6,7 @@ using Shared.Mediator;
 
 namespace Identity.Application.Features.Users.Commands.DeactivateUser
 {
-    internal class DeactivateUserCommandHandler : ICommandHandler<DeactivateUserCommand>
+    public sealed class DeactivateUserCommandHandler : ICommandHandler<DeactivateUserCommand>
     {
         private readonly IUserRepository _userRepository;
         private readonly IAuthSessionService _authSessionService;

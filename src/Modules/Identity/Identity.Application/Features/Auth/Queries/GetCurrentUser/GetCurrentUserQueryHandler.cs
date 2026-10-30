@@ -5,7 +5,7 @@ using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Queries.GetCurrentUser
 {
-    internal class GetCurrentUserQueryHandler : IQueryHandler<GetCurrentUserQuery, GetCurrentUserResponse>
+    public sealed class GetCurrentUserQueryHandler : IQueryHandler<GetCurrentUserQuery, GetCurrentUserResponse>
     {
         private readonly IUserRepository _userRepository;
 

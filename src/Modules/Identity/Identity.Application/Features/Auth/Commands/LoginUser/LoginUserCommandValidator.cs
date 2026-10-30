@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Auth.Commands.LoginUser
 {
-    public class LoginUserValidator : AbstractValidator<LoginUserCommand>
+    public sealed class LoginUserCommandValidator : AbstractValidator<LoginUserCommand>
     {
-        public LoginUserValidator()
+        public LoginUserCommandValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("The email address cannot be empty.")

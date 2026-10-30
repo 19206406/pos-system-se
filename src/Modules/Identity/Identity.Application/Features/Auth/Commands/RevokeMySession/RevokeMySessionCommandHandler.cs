@@ -5,7 +5,7 @@ using Shared.Mediator;
 
 namespace Identity.Application.Features.Auth.Commands.RevokeMySession
 {
-    internal class RevokeMySessionCommandHandler : ICommandHandler<RevokeMySessionCommand>
+    public sealed class RevokeMySessionCommandHandler : ICommandHandler<RevokeMySessionCommand>
     {
         private readonly IAuthSessionService _authSessionService;
 

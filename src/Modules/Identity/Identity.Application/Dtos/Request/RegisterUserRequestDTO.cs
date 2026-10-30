@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.DTOs.Request
+﻿namespace Identity.Application.Dtos.Request
 {
     public record RegisterUserRequestDTO(
         string FullName,

@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 {
-    public sealed class ForgotPasswordValidation : AbstractValidator<ForgotPasswordCommand>
+    public sealed class ForgotPasswordCommandValidator : AbstractValidator<ForgotPasswordCommand>
     {
-        public ForgotPasswordValidation()
+        public ForgotPasswordCommandValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("The email address cannot be empty.")

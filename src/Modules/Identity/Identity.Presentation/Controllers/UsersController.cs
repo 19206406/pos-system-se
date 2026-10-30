@@ -1,8 +1,7 @@
 ﻿using Identity.Application.Dtos.Responses;
-using Identity.Application.DTOs.Request;
-using Identity.Application.DTOs.Responses;
+using Identity.Application.Dtos.Request;
 using Identity.Application.Features.Users.Commands.CreateUser;
-using Identity.Application.Features.Users.Querys.GetUserById;
+using Identity.Application.Features.Users.Queries.GetUserById;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Mediator;

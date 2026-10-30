@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Identity.Data.Configurations
+namespace Identity.Persistence.Configurations.Entities
 {
     public class PasswordTokenConfiguration : IEntityTypeConfiguration<PasswordToken>
     {

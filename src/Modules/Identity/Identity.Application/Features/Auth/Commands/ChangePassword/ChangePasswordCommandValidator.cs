@@ -2,9 +2,9 @@
 
 namespace Identity.Application.Features.Auth.Commands.ChangePassword
 {
-    public sealed class ChangePasswordValidation : AbstractValidator<ChangePasswordCommand>
+    public sealed class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCommand>
     {
-        public ChangePasswordValidation()
+        public ChangePasswordCommandValidator()
         {
 
             RuleFor(x => x.UserId).NotEmpty();

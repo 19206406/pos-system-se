@@ -5,7 +5,7 @@ using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Commands.RefreshToken
 {
-    internal class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, RefreshTokenResponse>
+    public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, RefreshTokenResponse>
     {
         private readonly IAuthSessionService _authSessionService;
 

@@ -7,7 +7,7 @@ using Shared.Mediator;
 
 namespace Identity.Application.Features.Users.Commands.ResendInvite
 {
-    public class ResendInviteCommandHandler : ICommandHandler<ResendInviteCommand>
+    public sealed class ResendInviteCommandHandler : ICommandHandler<ResendInviteCommand>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordTokenRepository _passwordTokenRepository;

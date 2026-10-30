@@ -2,13 +2,13 @@
 using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.Authentication;
-using Identity.Application.DTOs.Responses;
+using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.LoginUser
 {
-    public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, AuthResponseDto>
+    public sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, AuthResponseDto>
     {
         private readonly IUserRepository _userRepository;
         private readonly ISessionRepository _sessionRepository;
