@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Identity.Persistence.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20261003150934_Initial")]
+    [Migration("20261030152411_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Identity.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("identity  ")
+                .HasDefaultSchema("identity")
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -34,13 +34,13 @@ namespace Identity.Persistence.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<DateTimeOffset>("ExpiresAt")
+                    b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
 
@@ -56,7 +56,7 @@ namespace Identity.Persistence.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("token_type");
 
-                    b.Property<DateTimeOffset?>("UsedAt")
+                    b.Property<DateTime?>("UsedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("used_at");
 
@@ -74,7 +74,7 @@ namespace Identity.Persistence.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("idx_password_tokens_user_id");
 
-                    b.ToTable("password_tokens", "identity  ", t =>
+                    b.ToTable("password_tokens", "identity", t =>
                         {
                             t.HasCheckConstraint("chk_password_tokens_token_type", "token_type IN ('invite', 'reset')");
                         });
@@ -113,7 +113,7 @@ namespace Identity.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("uq_permissions_identifier");
 
-                    b.ToTable("permissions", "identity  ");
+                    b.ToTable("permissions", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Role", b =>
@@ -143,7 +143,7 @@ namespace Identity.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("uq_roles_role_name");
 
-                    b.ToTable("roles", "identity  ");
+                    b.ToTable("roles", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.RolePermission", b =>
@@ -159,9 +159,10 @@ namespace Identity.Persistence.Migrations
                     b.HasKey("RoleId", "PermissionId")
                         .HasName("pk_roles_permissions");
 
-                    b.HasIndex("PermissionId");
+                    b.HasIndex("PermissionId")
+                        .HasDatabaseName("idx_roles_permissions_permission_id");
 
-                    b.ToTable("roles_permissions", "identity  ");
+                    b.ToTable("roles_permissions", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Session", b =>
@@ -211,18 +212,17 @@ namespace Identity.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_sessions");
 
-                    b.HasIndex("Id")
-                        .HasDatabaseName("idx_sessions_user_id");
-
-                    b.HasIndex("ReplacedById");
+                    b.HasIndex("ReplacedById")
+                        .HasDatabaseName("idx_sessions_replaced_by_id");
 
                     b.HasIndex("TokenHash")
                         .IsUnique()
                         .HasDatabaseName("uq_sessions_token_hash");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("idx_sessions_user_id");
 
-                    b.ToTable("sessions", "identity  ");
+                    b.ToTable("sessions", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.User", b =>
@@ -281,7 +281,7 @@ namespace Identity.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("uq_users_email");
 
-                    b.ToTable("users", "identity  ");
+                    b.ToTable("users", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.UserRole", b =>
@@ -297,9 +297,10 @@ namespace Identity.Persistence.Migrations
                     b.HasKey("UserId", "RoleId")
                         .HasName("pk_users_roles");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("idx_users_roles_role_id");
 
-                    b.ToTable("users_roles", "identity  ");
+                    b.ToTable("users_roles", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.PasswordToken", b =>
@@ -344,7 +345,7 @@ namespace Identity.Persistence.Migrations
                         .HasConstraintName("fk_sessions_replaced_by");
 
                     b.HasOne("Identity.Domain.Entities.User", "User")
-                        .WithMany("Sessiones")
+                        .WithMany("Sessions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -392,7 +393,7 @@ namespace Identity.Persistence.Migrations
                 {
                     b.Navigation("PasswordTokens");
 
-                    b.Navigation("Sessiones");
+                    b.Navigation("Sessions");
 
                     b.Navigation("UserRoles");
                 });

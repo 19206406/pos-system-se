@@ -21,6 +21,10 @@ namespace Identity.Persistence.Configurations.Entities
                 .IsRequired()
                 .HasColumnName("permission_id");
 
+            // The primary key (role_id, permission_id) already covers lookups by role
+            builder.HasIndex(rp => rp.PermissionId)
+                .HasDatabaseName("idx_roles_permissions_permission_id");
+
             builder.HasOne(rp => rp.Role)
                 .WithMany(r => r.RolePermissions)
                 .HasForeignKey(rp => rp.RoleId)

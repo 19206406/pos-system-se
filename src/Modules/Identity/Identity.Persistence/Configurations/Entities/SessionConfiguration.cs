@@ -54,6 +54,9 @@ namespace Identity.Persistence.Configurations.Entities
             builder.HasIndex(s => s.UserId)
                 .HasDatabaseName("idx_sessions_user_id");
 
+            builder.HasIndex(s => s.ReplacedById)
+                .HasDatabaseName("idx_sessions_replaced_by_id");
+
             builder.HasOne(s => s.User)
                 .WithMany(u => u.Sessions)
                 .HasForeignKey(s => s.UserId)

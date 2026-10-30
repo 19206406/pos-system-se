@@ -85,14 +85,14 @@ El diseño completo de autenticación y autorización está en `docs/identity-au
 
 - PostgreSQL 16 en Docker Compose: servicio `postgres-posdb`, contenedor `posdb`, puerto del host 5433, base `pos_db`. Patrón `docker-compose.yml` base más `docker-compose.override.yml` con secretos y puertos solo en el override.
 - Connection string `PosSystemDb`, definida en `appsettings.Development.json` del host.
-- Las migraciones de Identity usan tabla de historial propia en el schema `Identity`. La migración `Initial` ya fue aplicada: **no se edita**; los cambios van en migraciones nuevas.
+- Las migraciones de Identity usan tabla de historial propia en el schema `identity` (minúsculas). La migración `Initial` se regeneró el 2026-10-30 (decisión D1 de la auditoría: el schema aplicado antes era `"identity  "`, con espacios). Una vez aplicada, **no se edita**; los cambios van en migraciones nuevas.
 - Migraciones en producción: previstas como Job de Kubernetes, no al arrancar el pod. No bloquear el pipeline HTTP esperando la base de datos.
 
 ## Comandos habituales
 
 - Compilar la solución: `dotnet build`
 - Pruebas: `dotnet test`
-- Crear migración de Identity: `dotnet ef migrations add <Nombre> --context IdentityDbContext --project Identity.Persistence --startup-project PosSystem.Api --output-dir Migration`
+- Crear migración de Identity: `dotnet ef migrations add <Nombre> --context IdentityDbContext --project Identity.Persistence --startup-project PosSystem.Api --output-dir Migrations`
 - Aplicar migraciones: `dotnet ef database update ...` con los mismos parámetros. **Pide confirmación antes de ejecutarlo.**
 
 ## Qué no hacer sin preguntar
