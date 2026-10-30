@@ -1,9 +1,8 @@
 ﻿namespace Identity.Presentation.Requests.Users
 {
-    public record CreateUserRequest(
+    public sealed record CreateUserRequest(
         string FullName,
-        string PhoneNumber, 
-        string JobTitle, 
-        string Position, 
-        string Email); 
+        string Email,
+        string PhoneNumber,
+        string JobTitle);
 }

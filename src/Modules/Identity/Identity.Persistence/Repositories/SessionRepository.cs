@@ -51,9 +51,5 @@ namespace Identity.Persistence.Repositories
             => await _context.Sessions
                 .Where(s => s.UserId == userId && s.Id != exceptSessionId && s.RevokedAt == null)
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.RevokedAt, nowUtc), cancellationToken);
-
-        public async Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken)
-            => await _context.Sessions
-                .CountAsync(s => s.UserId == userId && s.RevokedAt == null, cancellationToken);
     }
 }

@@ -19,9 +19,9 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
                 .NotEmpty().WithMessage("The user's phone number must contain a value.")
                 .MaximumLength(20).WithMessage("The user's phone number cannot exceed 20 characters.");
 
-            RuleFor(x => x.Position)
-                .NotEmpty().WithMessage("The user must hold a position within the organization.").
-                MaximumLength(100).WithMessage("A new user's username cannot exceed 100 characters.");
+            RuleFor(x => x.JobTitle)
+                .NotEmpty().WithMessage("The user must hold a position within the organization.")
+                .MaximumLength(100).WithMessage("The job title cannot exceed 100 characters.");
         }
     }
 }

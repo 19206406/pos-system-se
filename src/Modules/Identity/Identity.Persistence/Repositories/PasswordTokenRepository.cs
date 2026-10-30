@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Persistence.Repositories
 {
-    public class PasswordTokenRepository : IPasswordTokenRepository
+    public sealed class PasswordTokenRepository : IPasswordTokenRepository
     {
         private readonly IdentityDbContext _context;
 
@@ -15,32 +15,26 @@ namespace Identity.Persistence.Repositories
 
         public void Add(PasswordToken passwordToken)
         {
-            _context.PasswordTokens.Add(passwordToken); 
+            _context.PasswordTokens.Add(passwordToken);
         }
 
-        public async Task<List<PasswordToken>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellationToken)
-        {
-            var passwordTokens = await _context.PasswordTokens
-                .Where(pt => pt.UserId == userId && !pt.UsedAt.HasValue)
-                .ToListAsync(cancellationToken);
-
-            return passwordTokens;
-        }
-
-        public async Task<PasswordToken?> GetByTokenAsync(string tokenHash, CancellationToken cancellationToken)
-        {
-            var passwordToken = await _context.PasswordTokens
+        public async Task<PasswordToken?> GetByTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
+            await _context.PasswordTokens
                 .FirstOrDefaultAsync(pt => pt.TokenHash == tokenHash, cancellationToken);
 
-            return passwordToken;
+        public async Task<bool> TryConsumeAsync(Guid tokenId, DateTime nowUtc, CancellationToken cancellationToken)
+        {
+            // UPDATE ... WHERE id = @id AND used_at IS NULL AND expires_at > now: one affected row means this request consumed it
+            var affected = await _context.PasswordTokens
+                .Where(pt => pt.Id == tokenId && pt.UsedAt == null && pt.ExpiresAt > nowUtc)
+                .ExecuteUpdateAsync(pt => pt.SetProperty(x => x.UsedAt, nowUtc), cancellationToken);
+
+            return affected == 1;
         }
 
-        public async Task RevokeAllActiveByUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken)
-        {
+        public async Task RevokeAllActiveByUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken) =>
             await _context.PasswordTokens
                 .Where(pt => pt.UserId == userId && pt.UsedAt == null)
-                .ExecuteUpdateAsync(pt => pt
-                    .SetProperty(x => x.UsedAt, nowUtc), cancellationToken); 
-        }
+                .ExecuteUpdateAsync(pt => pt.SetProperty(x => x.UsedAt, nowUtc), cancellationToken);
     }
 }

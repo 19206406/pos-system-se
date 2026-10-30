@@ -1,4 +1,4 @@
 ﻿namespace Identity.Presentation.Requests.Auth
 {
-    public record SetPasswordRequest(string Password, string VerificationPassword, string Email); 
+    public sealed record SetPasswordRequest(string Token, string NewPassword);
 }

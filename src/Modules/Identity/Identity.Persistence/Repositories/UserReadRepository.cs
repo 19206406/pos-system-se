@@ -19,7 +19,7 @@ namespace Identity.Persistence.Repositories
             await _context.Users
                 .AsNoTracking()
                 .Where(u => u.Id == userId)
-                .Select(u => new UserProfileDto(u.Id, u.FullName, u.Email, u.PhoneNumber, u.JobTitle, u.IsActive))
+                .Select(u => new UserProfileDto(u.Id, u.FullName, u.Email, u.PhoneNumber, u.JobTitle, u.IsActive, u.CreatedAt))
                 .FirstOrDefaultAsync(cancellationToken);
 
         public async Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken) =>

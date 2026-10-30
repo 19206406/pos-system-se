@@ -1,6 +1,7 @@
 ﻿using Identity.Application.Features.Users.Commands.CreateUser;
 using Identity.Application.Features.Users.Commands.DeactivateUser;
 using Identity.Application.Features.Users.Commands.ReactivateUser;
+using Identity.Application.Features.Users.Commands.ResendInvite;
 using Identity.Application.Features.Users.Commands.RevokeUserSessions;
 using Identity.Application.Features.Users.Queries.GetUserById;
 using Identity.Application.Features.Users.Queries.GetUsers;
@@ -54,12 +55,25 @@ namespace Identity.Presentation.Controllers
         [Authorize(Policy = PermissionCodes.Users.Create)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<CreateUserResponse>> CreateUser
             ([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
         {
-            var command = new CreateUserCommand(request.FullName, request.Email, request.PhoneNumber, request.Position);
+            var command = new CreateUserCommand(request.FullName, request.Email, request.PhoneNumber, request.JobTitle);
             CreateUserResponse result = await _sender.Send(command, cancellationToken);
             return Ok(result);
+        }
+
+        /// <summary> Issues a new invite for a user who has not set a password yet; earlier links stop working. </summary>
+        [HttpPost("{id:guid}/resend-invite")]
+        [Authorize(Policy = PermissionCodes.Users.Create)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> ResendInvite([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            await _sender.Send(new ResendInviteCommand(id), cancellationToken);
+            return NoContent();
         }
 
         [HttpPost("{id:guid}/deactivate")]

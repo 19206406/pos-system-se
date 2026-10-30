@@ -19,7 +19,5 @@ namespace Identity.Application.Contracts.Persistence
         Task<bool> RevokeActiveByIdAsync(Guid userId, Guid sessionId, DateTime nowUtc, CancellationToken cancellationToken);
 
         Task RevokeAllActiveByUserExceptAsync(Guid userId, Guid exceptSessionId, DateTime nowUtc, CancellationToken cancellationToken);
-
-        Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken);
     }
 }

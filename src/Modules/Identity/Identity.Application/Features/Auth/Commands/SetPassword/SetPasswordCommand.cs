@@ -2,6 +2,6 @@
 
 namespace Identity.Application.Features.Auth.Commands.SetPassword
 {
-    public sealed record SetPasswordCommand(string Email, string Password, string Token)
-        : ICommand<SetPasswordResponse>; 
+    // One action for invite and reset. The token alone identifies the user: there is no email on purpose.
+    public sealed record SetPasswordCommand(string Token, string NewPassword) : ICommand;
 }

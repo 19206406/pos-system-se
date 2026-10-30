@@ -69,7 +69,7 @@ namespace PosSystem.Api.ExceptionHandling
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "One or more validation errors occurred.",
-                Extensions = { ["Errors"] = errors }
+                Extensions = { ["errors"] = errors }
             }; 
         }
 
@@ -83,7 +83,6 @@ namespace PosSystem.Api.ExceptionHandling
                 ErrorType.NotFound => (StatusCodes.Status404NotFound, "Resource not found."),
                 ErrorType.Conflict => (StatusCodes.Status409Conflict, "Conflict."),
                 ErrorType.Business => (StatusCodes.Status422UnprocessableEntity, "Business rule violation."),
-                ErrorType.InvalidToken => (StatusCodes.Status401Unauthorized, "Invalid token"), 
                 _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred."),
             }; 
 

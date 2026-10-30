@@ -1,6 +1,5 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
-using Identity.Domain.Entities;
 using Shared.CQRS;
 using Shared.Exceptions;
 using Shared.Mediator;
@@ -11,55 +10,46 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordTokenRepository _passwordTokenRepository;
-        private readonly ISecureTokenGenerator _tokenGenerator;
-        private readonly ITokenHasher _tokenHasher;
+        private readonly IPasswordTokenIssuer _passwordTokenIssuer;
         private readonly IUnitOfWork _unitOfWork;
         private readonly TimeProvider _timeProvider;
 
         public ResendInviteCommandHandler(
-            IUserRepository userRepository, 
-            IPasswordTokenRepository passwordTokenRepository, 
-            ISecureTokenGenerator tokenGenerator,
-            ITokenHasher tokenHasher, 
-            IUnitOfWork unitOfWork, TimeProvider timeProvider)
+            IUserRepository userRepository,
+            IPasswordTokenRepository passwordTokenRepository,
+            IPasswordTokenIssuer passwordTokenIssuer,
+            IUnitOfWork unitOfWork,
+            TimeProvider timeProvider)
         {
             _userRepository = userRepository;
             _passwordTokenRepository = passwordTokenRepository;
-            _tokenGenerator = tokenGenerator;
-            _tokenHasher = tokenHasher;
+            _passwordTokenIssuer = passwordTokenIssuer;
             _unitOfWork = unitOfWork;
             _timeProvider = timeProvider;
         }
 
         public async Task<Unit> Handle(ResendInviteCommand command, CancellationToken cancellationToken)
         {
+            var user = await _userRepository.GetByIdAsync(command.UserId, cancellationToken)
+                ?? throw new NotFoundException("user", command.UserId.ToString());
 
-            var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
-
-            if (user is null)
-                throw new NotFoundException("user", command.Id.ToString());
+            // A user who already has a password recovers access through forgot-password, not through an invite
+            if (user.HashPassword is not null)
+                throw new BusinessException("The user already has a password; an invite cannot be resent.");
 
             var now = _timeProvider.GetUtcNow().UtcDateTime;
-            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken); 
 
-            var token = _tokenGenerator.GenerateToken();
-            var tokenHash = _tokenHasher.Hash(token);
+            // Only the newest link works (decision D9)
+            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken);
 
-            var newToken = new PasswordToken
-            {
-                TokenHash = tokenHash,
-                TokenType = "invite",
-                ExpiresAt = now.AddHours(72),
-                CreatedAt = now
-            };
+            var invite = _passwordTokenIssuer.IssueInvite(now);
+            invite.Entity.UserId = user.Id;
+            _passwordTokenRepository.Add(invite.Entity);
 
-            user.PasswordTokens.Add(newToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken); 
-
-            // send email with new Token 
-
-            return Unit.Value; 
+            // Pending: hand invite.PlainText to the email delivery (no delivery mechanism exists yet)
+            return Unit.Value;
         }
     }
 }

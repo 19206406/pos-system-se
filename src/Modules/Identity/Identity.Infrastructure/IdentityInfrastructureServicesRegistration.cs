@@ -14,9 +14,15 @@ namespace Identity.Infrastructure
             services.AddScoped<IPasswordHasher, Argon2PasswordHasher>();
             services.AddSingleton<ISecureTokenGenerator, RandomTokenGenerator>();
             services.AddSingleton<ITokenHasher, Sha256TokenHasher>();
+            services.AddSingleton<IPasswordTokenIssuer, PasswordTokenIssuer>();
 
             services.AddOptions<JwtOptions>()
                 .Bind(configuration.GetSection(JwtOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddOptions<PasswordTokenOptions>()
+                .Bind(configuration.GetSection(PasswordTokenOptions.SectionName))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 

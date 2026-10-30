@@ -1,17 +1,21 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
 using Shared.CQRS;
-using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
 {
+    /// <summary>
+    /// Lets the frontend check a link before showing the password form. It does not consume the token,
+    /// and a missing, expired or used token give the same answer.
+    /// </summary>
     public sealed class ValidatePasswordTokenQueryHandler : IQueryHandler<ValidatePasswordTokenQuery, ValidatePasswordTokenResponse>
     {
         private readonly IPasswordTokenRepository _passwordTokenRepository;
         private readonly ITokenHasher _tokenHasher;
         private readonly TimeProvider _timeProvider;
 
-        public ValidatePasswordTokenQueryHandler(IPasswordTokenRepository passwordTokenRepository, ITokenHasher tokenHasher, TimeProvider timeProvider)
+        public ValidatePasswordTokenQueryHandler(
+            IPasswordTokenRepository passwordTokenRepository, ITokenHasher tokenHasher, TimeProvider timeProvider)
         {
             _passwordTokenRepository = passwordTokenRepository;
             _tokenHasher = tokenHasher;
@@ -20,22 +24,13 @@ namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
 
         public async Task<ValidatePasswordTokenResponse> Handle(ValidatePasswordTokenQuery query, CancellationToken cancellationToken)
         {
-            var tokenHash = _tokenHasher.Hash(query.Token); 
+            var passwordToken = await _passwordTokenRepository.GetByTokenHashAsync(_tokenHasher.Hash(query.Token), cancellationToken);
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
 
-            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
+            if (passwordToken is null || passwordToken.UsedAt.HasValue || passwordToken.ExpiresAt <= now)
+                return ValidatePasswordTokenResponse.Invalid;
 
-            if (passwordToken is null)
-                throw new NotFoundException("password-token", query.Token.ToString());
-
-            if (passwordToken.UsedAt.HasValue)
-                throw new ConflictException("The token is not valid to be used");
-
-            if (passwordToken.ExpiresAt > _timeProvider.GetUtcNow().UtcDateTime)
-                throw new ConflictException("The token is not valid to be used");
-
-            return new ValidatePasswordTokenResponse(
-                passwordToken.Id, passwordToken.TokenType, 
-                passwordToken.CreatedAt, passwordToken.ExpiresAt); 
+            return new ValidatePasswordTokenResponse(true, passwordToken.TokenType);
         }
     }
 }

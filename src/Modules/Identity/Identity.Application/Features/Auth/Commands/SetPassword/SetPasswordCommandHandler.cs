@@ -1,59 +1,76 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
+using Identity.Application.Contracts.Services;
 using Shared.CQRS;
 using Shared.Exceptions;
+using Shared.Mediator;
 
 namespace Identity.Application.Features.Auth.Commands.SetPassword
 {
-    public sealed class SetPasswordCommandHandler : ICommandHandler<SetPasswordCommand, SetPasswordResponse>
+    public sealed class SetPasswordCommandHandler : ICommandHandler<SetPasswordCommand>
     {
+        // Same message for a missing, used, expired or concurrently consumed token, and for an inactive user
+        private const string InvalidTokenMessage = "The link is invalid or has expired.";
+
         private readonly IUserRepository _userRepository;
         private readonly IPasswordTokenRepository _passwordTokenRepository;
+        private readonly IAuthSessionService _authSessionService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenHasher _tokenHasher;
         private readonly TimeProvider _timeProvider;
 
         public SetPasswordCommandHandler(
-            IUserRepository userRepository, IPasswordTokenRepository passwordTokenRepository, IUnitOfWork unitOfWork,
-            IPasswordHasher passwordHasher, ITokenHasher tokenHasher, TimeProvider timeProvider)
+            IUserRepository userRepository,
+            IPasswordTokenRepository passwordTokenRepository,
+            IAuthSessionService authSessionService,
+            IUnitOfWork unitOfWork,
+            IPasswordHasher passwordHasher,
+            ITokenHasher tokenHasher,
+            TimeProvider timeProvider)
         {
             _userRepository = userRepository;
             _passwordTokenRepository = passwordTokenRepository;
+            _authSessionService = authSessionService;
             _unitOfWork = unitOfWork;
             _passwordHasher = passwordHasher;
             _tokenHasher = tokenHasher;
             _timeProvider = timeProvider;
         }
 
-        public async Task<SetPasswordResponse> Handle(SetPasswordCommand command, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(SetPasswordCommand command, CancellationToken cancellationToken)
         {
             var now = _timeProvider.GetUtcNow().UtcDateTime;
-            var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
-            var tokenHash = _tokenHasher.Hash(command.Token);
+            var passwordToken = await _passwordTokenRepository.GetByTokenHashAsync(_tokenHasher.Hash(command.Token), cancellationToken);
+            if (passwordToken is null || passwordToken.UsedAt.HasValue || passwordToken.ExpiresAt <= now)
+                throw new BadRequestException(InvalidTokenMessage);
 
+            var user = await _userRepository.GetByIdAsync(passwordToken.UserId, cancellationToken);
             if (user is null || !user.IsActive)
-                throw new UnauthorizedException("You cannot perform the following action");
+                throw new BadRequestException(InvalidTokenMessage);
 
-            var passwordToken = await _passwordTokenRepository.GetByTokenAsync(tokenHash, cancellationToken);
+            // Argon2id is slow: hash before opening the transaction to keep it short
+            var newPasswordHash = _passwordHasher.Hash(command.NewPassword);
 
-            if (passwordToken is null)
-                throw new UnauthorizedException("You cannot perform the following action");
+            await _unitOfWork.ExecuteInTransactionAsync(async transactionToken =>
+            {
+                // Conditional update: of two requests with the same token, only one gets here with true
+                if (!await _passwordTokenRepository.TryConsumeAsync(passwordToken.Id, now, transactionToken))
+                    throw new BadRequestException(InvalidTokenMessage);
 
-            if (passwordToken.UsedAt.HasValue || passwordToken.ExpiresAt <= now || passwordToken.TokenType != "invite")
-                throw new InvalidTokenException("The token is not valid to be used");
+                await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, transactionToken);
 
-            var password = _passwordHasher.Hash(command.Password);
+                user.HashPassword = newPasswordHash;
+                user.UpdatedAt = now;
+                await _unitOfWork.SaveChangesAsync(transactionToken);
 
-            user.HashPassword = password;
+                // Always, for invite and reset alike: whoever had the old password loses every session. No auto-login.
+                await _authSessionService.RevokeAllUserSessionsAsync(user.Id, transactionToken);
+            }, cancellationToken);
 
-            var usedAt = now;
-            passwordToken.UsedAt = usedAt;
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return new SetPasswordResponse(user.FullName, command.Token, passwordToken.TokenType, usedAt);
+            // Pending: publish the "password changed" event (cross-cutting item 4 of the spec, Phase 3)
+            return Unit.Value;
         }
     }
 }

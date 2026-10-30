@@ -8,7 +8,7 @@ namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
         {
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("The token cannot be empty.")
-                .MaximumLength(255).WithMessage("The token cannot exceed 250 characters.");
+                .MaximumLength(255).WithMessage("The token cannot exceed 255 characters.");
         }
     }
 }

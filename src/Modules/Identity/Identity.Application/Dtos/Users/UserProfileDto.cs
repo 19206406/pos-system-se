@@ -6,5 +6,6 @@ namespace Identity.Application.Dtos.Users
         string Email,
         string? PhoneNumber,
         string JobTitle,
-        bool IsActive);
+        bool IsActive,
+        DateTime CreatedAt);
 }

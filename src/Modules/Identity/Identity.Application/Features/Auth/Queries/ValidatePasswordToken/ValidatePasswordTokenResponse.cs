@@ -1,8 +1,8 @@
 ﻿namespace Identity.Application.Features.Auth.Queries.ValidatePasswordToken
 {
-    public record ValidatePasswordTokenResponse(
-        Guid Id, 
-        string TokenType, 
-        DateTime CreatedAt, 
-        DateTime ExpiresAt); 
+    /// <summary> TokenType ("invite" or "reset") is null when IsValid is false. No user data on purpose. </summary>
+    public sealed record ValidatePasswordTokenResponse(bool IsValid, string? TokenType)
+    {
+        public static ValidatePasswordTokenResponse Invalid { get; } = new(false, null);
+    }
 }

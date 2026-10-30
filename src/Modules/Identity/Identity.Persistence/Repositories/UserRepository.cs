@@ -36,6 +36,9 @@ namespace Identity.Persistence.Repositories
             return user;
         }
 
+        public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken) =>
+            await _context.Users.AnyAsync(u => u.Email == email, cancellationToken);
+
         public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);

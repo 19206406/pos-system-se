@@ -2,5 +2,6 @@
 
 namespace Identity.Application.Features.Auth.Commands.LogoutUser
 {
-    public sealed record LogoutUserCommand(Guid Id, string RefreshToken) : ICommand;
+    // Anonymous: the refresh token alone identifies the session, so logout works after the access token expired
+    public sealed record LogoutUserCommand(string RefreshToken) : ICommand;
 }

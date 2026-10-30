@@ -1,11 +1,14 @@
 ﻿using Identity.Application.Features.Auth.Commands.ChangePassword;
+using Identity.Application.Features.Auth.Commands.ForgotPassword;
 using Identity.Application.Features.Auth.Commands.LoginUser;
 using Identity.Application.Features.Auth.Commands.LogoutAllSessions;
+using Identity.Application.Features.Auth.Commands.LogoutUser;
 using Identity.Application.Features.Auth.Commands.RefreshToken;
 using Identity.Application.Features.Auth.Commands.RevokeMySession;
 using Identity.Application.Features.Auth.Commands.SetPassword;
 using Identity.Application.Features.Auth.Queries.GetCurrentUser;
 using Identity.Application.Features.Auth.Queries.GetMySessions;
+using Identity.Application.Features.Auth.Queries.ValidatePasswordToken;
 using Identity.Presentation.Extensions;
 using Identity.Presentation.Requests.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -34,28 +37,61 @@ namespace Identity.Presentation.Controllers
         [AllowAnonymous]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<LoginUserResponse>> LoginUser(
             [FromBody] LoginUserRequest request, CancellationToken cancellationToken)
         {
-            var command = new LoginUserCommand(request.Email, request.Password);
+            var command = new LoginUserCommand(request.Email, request.Password, HttpContext.GetClientContext());
             LoginUserResponse result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }
 
-        [HttpPut("password")]
+        /// <summary> Revokes the session of the refresh token sent. Always 204, even for unknown or revoked tokens. </summary>
+        [HttpPost("logout")]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> LogoutUser([FromBody] LogoutUserRequest request, CancellationToken cancellationToken)
+        {
+            await _sender.Send(new LogoutUserCommand(request.RefreshToken ?? string.Empty), cancellationToken);
+            return NoContent();
+        }
+
+        /// <summary> Same 202 whether or not the email exists. </summary>
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<SetPasswordResponse>> SetUserPassword(
+        public async Task<IActionResult> ForgotPassword(
+            [FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+        {
+            await _sender.Send(new ForgotPasswordCommand(request.Email), cancellationToken);
+            return Accepted();
+        }
+
+        /// <summary> Checks an invite or reset link without consuming it. </summary>
+        [HttpGet("password-token/validate")]
+        [AllowAnonymous]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ValidatePasswordTokenResponse>> ValidatePasswordToken(
+            [FromQuery] string token, CancellationToken cancellationToken)
+        {
+            ValidatePasswordTokenResponse result = await _sender.Send(new ValidatePasswordTokenQuery(token), cancellationToken);
+            return Ok(result);
+        }
+
+        /// <summary> Sets the password from an invite or reset token and closes every session of the user. </summary>
+        [HttpPost("set-password")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SetPassword(
             [FromBody] SetPasswordRequest request, CancellationToken cancellationToken)
         {
-            var command = new SetPasswordCommand(request.Email, request.Password, request.VerificationPassword);
-            SetPasswordResponse result = await _sender.Send(command, cancellationToken);
-            return Ok(result);
+            await _sender.Send(new SetPasswordCommand(request.Token, request.NewPassword), cancellationToken);
+            return NoContent();
         }
 
         /// <summary> Exchanges a refresh token for a new token pair; the refresh token sent is invalidated. </summary>

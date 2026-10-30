@@ -27,11 +27,11 @@ namespace Identity.Persistence.Configurations.Entities
                 .HasColumnName("token_hash");
 
             builder.Property(s => s.DeviceInfo)
-                .HasMaxLength(100)
+                .HasMaxLength(Session.DeviceInfoMaxLength)
                 .HasColumnName("device_info");
 
             builder.Property(s => s.IpAddress)
-                .HasMaxLength(50)
+                .HasMaxLength(Session.IpAddressMaxLength)
                 .HasColumnName("ip_address");
 
             builder.Property(s => s.CreatedAt)
