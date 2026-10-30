@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Auth.Queries.GetMySessions
 {
     public sealed record GetMySessionsResponse(IReadOnlyList<MySessionItem> Sessions);
 

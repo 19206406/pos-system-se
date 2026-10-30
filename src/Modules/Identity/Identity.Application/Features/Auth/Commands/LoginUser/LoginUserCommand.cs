@@ -1,7 +1,6 @@
-﻿using Identity.Application.Dtos.Responses;
-using Shared.CQRS;
+﻿using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Commands.LoginUser
 {
-    public sealed record LoginUserCommand(string Email, string Password) : ICommand<AuthResponseDto>; 
+    public sealed record LoginUserCommand(string Email, string Password) : ICommand<LoginUserResponse>; 
 }

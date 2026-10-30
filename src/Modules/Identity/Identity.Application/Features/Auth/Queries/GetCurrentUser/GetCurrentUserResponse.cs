@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Auth.Queries.GetCurrentUser
 {
     public sealed record GetCurrentUserResponse(
         Guid Id,

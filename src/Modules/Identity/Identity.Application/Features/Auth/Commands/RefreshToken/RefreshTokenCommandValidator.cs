@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Identity.Application.Dtos.Responses;
 
 namespace Identity.Application.Features.Auth.Commands.RefreshToken
 {

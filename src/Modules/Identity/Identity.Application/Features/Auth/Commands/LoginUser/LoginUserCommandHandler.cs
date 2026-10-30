@@ -2,13 +2,12 @@
 using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.Authentication;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.LoginUser
 {
-    public sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, AuthResponseDto>
+    public sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUserResponse>
     {
         private readonly IUserRepository _userRepository;
         private readonly ISessionRepository _sessionRepository;
@@ -27,7 +26,7 @@ namespace Identity.Application.Features.Auth.Commands.LoginUser
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<AuthResponseDto> Handle(LoginUserCommand command, CancellationToken cancellationToken)
+        public async Task<LoginUserResponse> Handle(LoginUserCommand command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
@@ -48,7 +47,7 @@ namespace Identity.Application.Features.Auth.Commands.LoginUser
             var client = new ClientContext("not delivered", "not delivered");
             var auth =  await _sessionService.CreateSessionAsync(user, client, cancellationToken); 
 
-            return new AuthResponseDto(
+            return new LoginUserResponse(
                 user.FullName,
                 user.Email,
                 auth.AccessToken,

@@ -1,11 +1,10 @@
 ﻿using Identity.Application.Contracts.Persistence;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
 namespace Identity.Application.Features.Users.Queries.GetUserById
 {
-    public sealed class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, GetUserResponseDto>
+    public sealed class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, GetUserByIdResponse>
     {
         private readonly IUserRepository _userRepository;
 
@@ -14,14 +13,14 @@ namespace Identity.Application.Features.Users.Queries.GetUserById
             _userRepository = userRepository;
         }
 
-        public async Task<GetUserResponseDto> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
+        public async Task<GetUserByIdResponse> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(query.Id, cancellationToken);
 
             if (user is null)
                 throw new NotFoundException("user", query.Id.ToString());
 
-            return new GetUserResponseDto(
+            return new GetUserByIdResponse(
                 user.Id, user.FullName, user.PhoneNumber,
                 user.JobTitle, user.Email, user.IsActive, user.CreatedAt); 
         }

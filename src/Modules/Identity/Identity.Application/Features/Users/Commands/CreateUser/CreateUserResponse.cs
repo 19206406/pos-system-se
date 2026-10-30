@@ -1,6 +1,6 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Users.Commands.CreateUser
 {
-    public record RegisterUserResponseDto(
+    public record CreateUserResponse(
         Guid Id, string FullName, string JobTitle, 
         string PhoneNumber, string Email, DateTime CreatedAt); 
 }

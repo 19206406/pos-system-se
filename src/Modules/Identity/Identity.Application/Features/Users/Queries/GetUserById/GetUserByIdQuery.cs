@@ -1,7 +1,6 @@
-﻿using Identity.Application.Dtos.Responses;
-using Shared.CQRS;
+﻿using Shared.CQRS;
 
 namespace Identity.Application.Features.Users.Queries.GetUserById
 {
-    public sealed record GetUserByIdQuery(Guid Id) : IQuery<GetUserResponseDto>; 
+    public sealed record GetUserByIdQuery(Guid Id) : IQuery<GetUserByIdResponse>; 
 }

@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Users.Queries.GetUsers
 {
     public sealed record GetUsersResponse(
         IReadOnlyList<GetUsersItem> Items,

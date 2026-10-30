@@ -1,5 +1,4 @@
 ﻿using Identity.Application.Dtos.Authentication;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Commands.RefreshToken

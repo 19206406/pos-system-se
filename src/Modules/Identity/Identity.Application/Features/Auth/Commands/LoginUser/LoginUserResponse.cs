@@ -1,6 +1,6 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Auth.Commands.LoginUser
 {
-    public record AuthResponseDto(
+    public record LoginUserResponse(
         string FullName, 
         string Email,
         string AccessToken,

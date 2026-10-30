@@ -1,7 +1,6 @@
-﻿using Identity.Application.Dtos.Request;
-using Identity.Application.Dtos.Responses;
-using Identity.Application.Features.Auth.Commands.LoginUser;
+﻿using Identity.Application.Features.Auth.Commands.LoginUser;
 using Identity.Application.Features.Auth.Commands.SetPassword;
+using Identity.Presentation.Requests.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Mediator;
@@ -24,11 +23,11 @@ namespace Identity.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AuthResponseDto>> LoginUser(
-            [FromBody] LoginUserRequestDTO request, CancellationToken cancellationToken)
+        public async Task<ActionResult<LoginUserResponse>> LoginUser(
+            [FromBody] LoginUserRequest request, CancellationToken cancellationToken)
         {
             var command = new LoginUserCommand(request.Email, request.Password);
-            AuthResponseDto result = await _sender.Send(command, cancellationToken);
+            LoginUserResponse result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }
 
@@ -36,11 +35,11 @@ namespace Identity.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<SetPasswordResponseDto>> SetUserPassword(
-            [FromBody] SetUserPasswordRequestDto request, CancellationToken cancellationToken)
+        public async Task<ActionResult<SetPasswordResponse>> SetUserPassword(
+            [FromBody] SetPasswordRequest request, CancellationToken cancellationToken)
         {
             var command = new SetPasswordCommand(request.Email, request.Password, request.VerificationPassword);
-            SetPasswordResponseDto result = await _sender.Send(command, cancellationToken);
+            SetPasswordResponse result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }
     }

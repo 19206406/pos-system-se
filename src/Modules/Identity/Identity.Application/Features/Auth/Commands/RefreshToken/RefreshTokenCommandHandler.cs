@@ -1,6 +1,5 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Services;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Commands.RefreshToken

@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Auth.Commands.RefreshToken
 {
     public sealed record RefreshTokenResponse(
         string AccessToken,

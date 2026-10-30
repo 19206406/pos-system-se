@@ -1,7 +1,6 @@
-﻿using Identity.Application.Dtos.Responses;
-using Identity.Application.Dtos.Request;
-using Identity.Application.Features.Users.Commands.CreateUser;
+﻿using Identity.Application.Features.Users.Commands.CreateUser;
 using Identity.Application.Features.Users.Queries.GetUserById;
+using Identity.Presentation.Requests.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Mediator;
@@ -22,21 +21,21 @@ namespace Identity.Presentation.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GetUserResponseDto>> GetUserById(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<GetUserByIdResponse>> GetUserById(Guid id, CancellationToken cancellationToken)
         {
             var query = new GetUserByIdQuery(id);
-            GetUserResponseDto result = await _sender.Send(query, cancellationToken);
+            GetUserByIdResponse result = await _sender.Send(query, cancellationToken);
             return Ok(result);
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RegisterUserResponseDto>> CreateUser
-            ([FromBody] RegisterUserRequestDTO request, CancellationToken cancellationToken)
+        public async Task<ActionResult<CreateUserResponse>> CreateUser
+            ([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateUserCommand(request.FullName, request.Email, request.PhoneNumber, request.Position);
-            RegisterUserResponseDto result = await _sender.Send(command, cancellationToken);
+            CreateUserResponse result = await _sender.Send(command, cancellationToken);
             return Ok(result); 
         }
     }

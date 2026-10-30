@@ -1,12 +1,11 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
-using Identity.Application.Dtos.Responses;
 using Identity.Domain.Entities;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Users.Commands.CreateUser
 {
-    public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, RegisterUserResponseDto>
+    public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, CreateUserResponse>
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -22,7 +21,7 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
             _tokenHasher = tokenHasher;
         }
 
-        public async Task<RegisterUserResponseDto> Handle(CreateUserCommand command, CancellationToken cancellationToken)
+        public async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken cancellationToken)
         {
 
             var token = _tokenGenerator.GenerateToken();
@@ -54,7 +53,7 @@ namespace Identity.Application.Features.Users.Commands.CreateUser
 
             // send email 
             
-            return new RegisterUserResponseDto(
+            return new CreateUserResponse(
                 user.Id, user.FullName, user.JobTitle, 
                 user.PhoneNumber, user.Email, user.CreatedAt); 
         }

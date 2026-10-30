@@ -1,5 +1,4 @@
 ﻿using Identity.Application.Contracts.Persistence;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 
 namespace Identity.Application.Features.Auth.Queries.GetMySessions

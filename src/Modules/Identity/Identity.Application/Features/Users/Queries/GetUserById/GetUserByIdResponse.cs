@@ -1,6 +1,6 @@
-﻿namespace Identity.Application.Dtos.Responses
+﻿namespace Identity.Application.Features.Users.Queries.GetUserById
 {
-    public record GetUserResponseDto(
+    public record GetUserByIdResponse(
         Guid Id, string FullName, string? PhoneNumber, 
         string JobTitle, string Email, bool IsActive, DateTime CreatedAt); 
 }

@@ -1,6 +1,6 @@
-﻿namespace Identity.Application.Dtos.Request
+﻿namespace Identity.Presentation.Requests.Users
 {
-    public record RegisterUserRequestDTO(
+    public record CreateUserRequest(
         string FullName,
         string PhoneNumber, 
         string JobTitle, 

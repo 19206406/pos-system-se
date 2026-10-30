@@ -1,12 +1,11 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
-using Identity.Application.Dtos.Responses;
 using Shared.CQRS;
 using Shared.Exceptions;
 
 namespace Identity.Application.Features.Auth.Commands.SetPassword
 {
-    public sealed class SetPasswordCommandHandler : ICommandHandler<SetPasswordCommand, SetPasswordResponseDto>
+    public sealed class SetPasswordCommandHandler : ICommandHandler<SetPasswordCommand, SetPasswordResponse>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordTokenRepository _passwordTokenRepository;
@@ -25,7 +24,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
             _tokenHasher = tokenHasher;
         }
 
-        public async Task<SetPasswordResponseDto> Handle(SetPasswordCommand command, CancellationToken cancellationToken)
+        public async Task<SetPasswordResponse> Handle(SetPasswordCommand command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
@@ -51,7 +50,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
 
             await _unitOfWork.SaveChangesAsync();
 
-            return new SetPasswordResponseDto(user.FullName, command.Token, passwordToken.TokenType, usedAt);
+            return new SetPasswordResponse(user.FullName, command.Token, passwordToken.TokenType, usedAt);
         }
     }
 }
