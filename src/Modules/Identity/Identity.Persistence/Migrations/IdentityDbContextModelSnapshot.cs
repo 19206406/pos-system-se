@@ -23,6 +23,61 @@ namespace Identity.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Identity.Domain.Entities.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("Attempts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_until");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("payload");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_outbox_messages");
+
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("idx_outbox_messages_pending")
+                        .HasFilter("processed_at IS NULL");
+
+                    b.ToTable("outbox_messages", "identity", t =>
+                        {
+                            t.HasCheckConstraint("chk_outbox_messages_attempts", "attempts >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Identity.Domain.Entities.PasswordToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -111,6 +166,43 @@ namespace Identity.Persistence.Migrations
                         .HasDatabaseName("uq_permissions_identifier");
 
                     b.ToTable("permissions", "identity");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("9769750d-a668-463d-a7b1-91dae751524f"),
+                            Identifier = "users.read",
+                            PermissionDescription = "Consultar la lista de usuarios y su detalle.",
+                            PermissionName = "Ver usuarios"
+                        },
+                        new
+                        {
+                            Id = new Guid("1a0a94a4-e6b7-406c-9a41-3af1b5041eee"),
+                            Identifier = "users.create",
+                            PermissionDescription = "Crear usuarios y reenviar invitaciones.",
+                            PermissionName = "Crear usuarios"
+                        },
+                        new
+                        {
+                            Id = new Guid("82f841fc-d993-4c8f-9463-700fe5e8f944"),
+                            Identifier = "users.update",
+                            PermissionDescription = "Desactivar y reactivar usuarios.",
+                            PermissionName = "Modificar usuarios"
+                        },
+                        new
+                        {
+                            Id = new Guid("329bf5b9-e1df-49cd-9f42-27f523a1eb1c"),
+                            Identifier = "sessions.read",
+                            PermissionDescription = "Consultar las sesiones activas de otros usuarios.",
+                            PermissionName = "Ver sesiones"
+                        },
+                        new
+                        {
+                            Id = new Guid("7ae90271-e5e3-4573-adca-3b55657e7c2a"),
+                            Identifier = "sessions.revoke",
+                            PermissionDescription = "Cerrar todas las sesiones de otro usuario.",
+                            PermissionName = "Revocar sesiones"
+                        });
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Role", b =>
@@ -141,6 +233,14 @@ namespace Identity.Persistence.Migrations
                         .HasDatabaseName("uq_roles_role_name");
 
                     b.ToTable("roles", "identity");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
+                            RoleDescription = "Administrador con todos los permisos del módulo Identity.",
+                            RoleName = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.RolePermission", b =>
@@ -160,6 +260,33 @@ namespace Identity.Persistence.Migrations
                         .HasDatabaseName("idx_roles_permissions_permission_id");
 
                     b.ToTable("roles_permissions", "identity");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
+                            PermissionId = new Guid("9769750d-a668-463d-a7b1-91dae751524f")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
+                            PermissionId = new Guid("1a0a94a4-e6b7-406c-9a41-3af1b5041eee")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
+                            PermissionId = new Guid("82f841fc-d993-4c8f-9463-700fe5e8f944")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
+                            PermissionId = new Guid("329bf5b9-e1df-49cd-9f42-27f523a1eb1c")
+                        },
+                        new
+                        {
+                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
+                            PermissionId = new Guid("7ae90271-e5e3-4573-adca-3b55657e7c2a")
+                        });
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Session", b =>

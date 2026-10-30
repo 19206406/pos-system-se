@@ -1,6 +1,7 @@
 ﻿using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Identity.Persistence.Seed;
 
 namespace Identity.Persistence.Configurations.Entities
 {
@@ -36,6 +37,8 @@ namespace Identity.Persistence.Configurations.Entities
                 .HasForeignKey(rp => rp.PermissionId)
                 .HasConstraintName("fk_roles_permissions_permissions")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasData(IdentitySeedData.RolePermissions);
         }
     }
 }

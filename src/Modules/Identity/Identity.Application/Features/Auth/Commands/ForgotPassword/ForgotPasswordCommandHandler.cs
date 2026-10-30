@@ -1,6 +1,7 @@
 ﻿using Identity.Application.Common;
+using Identity.Application.Contracts.Messaging;
 using Identity.Application.Contracts.Persistence;
-using Identity.Application.Contracts.Security;
+using Identity.Application.Messaging.Messages;
 using Shared.CQRS;
 using Shared.Mediator;
 
@@ -8,29 +9,21 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
 {
     /// <summary>
     /// Always succeeds with the same response, whether or not the email exists, so it cannot be used to
-    /// discover accounts. Does not revoke sessions: someone who only knows the email must not be able to
-    /// log the real user out.
+    /// discover accounts. It only records the request: the token and the email are produced by the outbox
+    /// processor, so the response never waits for the email. Does not revoke sessions: someone who only
+    /// knows the email must not be able to log the real user out.
     /// </summary>
     public sealed class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IPasswordTokenRepository _passwordTokenRepository;
-        private readonly IPasswordTokenIssuer _passwordTokenIssuer;
+        private readonly IOutbox _outbox;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly TimeProvider _timeProvider;
 
-        public ForgotPasswordCommandHandler(
-            IUserRepository userRepository,
-            IPasswordTokenRepository passwordTokenRepository,
-            IPasswordTokenIssuer passwordTokenIssuer,
-            IUnitOfWork unitOfWork,
-            TimeProvider timeProvider)
+        public ForgotPasswordCommandHandler(IUserRepository userRepository, IOutbox outbox, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
-            _passwordTokenRepository = passwordTokenRepository;
-            _passwordTokenIssuer = passwordTokenIssuer;
+            _outbox = outbox;
             _unitOfWork = unitOfWork;
-            _timeProvider = timeProvider;
         }
 
         public async Task<Unit> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
@@ -41,18 +34,9 @@ namespace Identity.Application.Features.Auth.Commands.ForgotPassword
             if (user is null || !user.IsActive)
                 return Unit.Value;
 
-            var now = _timeProvider.GetUtcNow().UtcDateTime;
-
-            // Only the newest link works (decision D9)
-            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken);
-
-            var reset = _passwordTokenIssuer.IssueReset(now);
-            reset.Entity.UserId = user.Id;
-            _passwordTokenRepository.Add(reset.Entity);
-
+            _outbox.Enqueue(new PasswordResetRequested(user.Id));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Pending: hand reset.PlainText to the email delivery without awaiting it (no delivery mechanism exists yet)
             return Unit.Value;
         }
     }

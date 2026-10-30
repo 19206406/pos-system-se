@@ -1,6 +1,7 @@
 ﻿using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Identity.Persistence.Seed;
 
 namespace Identity.Persistence.Configurations.Entities
 {
@@ -34,6 +35,9 @@ namespace Identity.Persistence.Configurations.Entities
             builder.HasIndex(p => p.Identifier)
                 .IsUnique()
                 .HasDatabaseName("uq_permissions_identifier");
+
+                // Seed: one row per PermissionCodes.All entry (see IdentitySeedData)
+            builder.HasData(IdentitySeedData.Permissions);
         }
     }
 }

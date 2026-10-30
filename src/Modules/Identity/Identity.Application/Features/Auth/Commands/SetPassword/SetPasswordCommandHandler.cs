@@ -1,6 +1,8 @@
 ﻿using Identity.Application.Contracts.Persistence;
+using Identity.Application.Contracts.Messaging;
 using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
+using Identity.Application.Messaging.Messages;
 using Shared.CQRS;
 using Shared.Exceptions;
 using Shared.Mediator;
@@ -19,6 +21,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenHasher _tokenHasher;
         private readonly TimeProvider _timeProvider;
+        private readonly IOutbox _outbox;
 
         public SetPasswordCommandHandler(
             IUserRepository userRepository,
@@ -27,7 +30,8 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
             IUnitOfWork unitOfWork,
             IPasswordHasher passwordHasher,
             ITokenHasher tokenHasher,
-            TimeProvider timeProvider)
+            TimeProvider timeProvider,
+            IOutbox outbox)
         {
             _userRepository = userRepository;
             _passwordTokenRepository = passwordTokenRepository;
@@ -36,6 +40,7 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
             _passwordHasher = passwordHasher;
             _tokenHasher = tokenHasher;
             _timeProvider = timeProvider;
+            _outbox = outbox;
         }
 
         public async Task<Unit> Handle(SetPasswordCommand command, CancellationToken cancellationToken)
@@ -63,13 +68,13 @@ namespace Identity.Application.Features.Auth.Commands.SetPassword
 
                 user.HashPassword = newPasswordHash;
                 user.UpdatedAt = now;
+                _outbox.Enqueue(new PasswordChanged(user.Id));
                 await _unitOfWork.SaveChangesAsync(transactionToken);
 
                 // Always, for invite and reset alike: whoever had the old password loses every session. No auto-login.
                 await _authSessionService.RevokeAllUserSessionsAsync(user.Id, transactionToken);
             }, cancellationToken);
 
-            // Pending: publish the "password changed" event (cross-cutting item 4 of the spec, Phase 3)
             return Unit.Value;
         }
     }

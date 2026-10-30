@@ -3,22 +3,33 @@ services:
     container_name: posdb
     image: postgres:16-alpine
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=Sebastian@Pos123
-      - POSTGRES_DB=pos_db
+      # Read from .env (not versioned). Copy .env.example to .env and fill it in.
+      - POSTGRES_USER=${POSTGRES_USER:-admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      - POSTGRES_DB=${POSTGRES_DB:-pos_db}
     ports:
       - "5433:5432"
     volumes:
       - postgres-posdb-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
     command: >
-      postgres 
+      postgres
       -c password_encryption=md5
+
+  # Development only: fake SMTP server that keeps every email. Inbox at http://localhost:8025, SMTP on localhost:1025.
+  mailpit:
+    container_name: mailpit
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - modular-monolith-network
 
 volumes:
   postgres-posdb-data:

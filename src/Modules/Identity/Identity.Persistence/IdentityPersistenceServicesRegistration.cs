@@ -1,6 +1,8 @@
 ﻿using Identity.Application.Constants;
 using Identity.Application.Contracts.Authentication;
+using Identity.Application.Contracts.Messaging;
 using Identity.Application.Contracts.Persistence;
+using Identity.Persistence.Messaging;
 using Identity.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +17,8 @@ namespace Identity.Persistence
 
             var connectionString = configuration.GetConnectionString("PosSystemDb")
                 ?? throw new InvalidOperationException(
-                    "The connection string 'PosSystemDb' is missing from the configuration.");
+                    "The connection string 'PosSystemDb' is missing from the configuration. " +
+                    "In development set it with user-secrets (see CLAUDE.md, \"Base de datos y entorno local\").");
 
             services.AddDbContext<IdentityDbContext>(options =>
                 options.UseNpgsql(connectionString, npgsql =>
@@ -33,6 +36,10 @@ namespace Identity.Persistence
 
             services.AddScoped<IUserReadRepository, UserReadRepository>();
             services.AddScoped<ISessionReadRepository, SessionReadRepository>();
+
+            services.AddScoped<IOutbox, Outbox>();
+            services.AddScoped<IOutboxStore, OutboxStore>();
+            services.AddScoped<IIdentityDataRetention, IdentityDataRetention>();
 
             return services; 
         }

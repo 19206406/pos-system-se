@@ -1,6 +1,7 @@
 ﻿using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Identity.Persistence.Seed;
 
 namespace Identity.Persistence.Configurations.Entities
 {
@@ -29,6 +30,8 @@ namespace Identity.Persistence.Configurations.Entities
             builder.HasIndex(r => r.RoleName)
                 .IsUnique()
                 .HasDatabaseName("uq_roles_role_name");
+
+            builder.HasData(IdentitySeedData.Roles);
         }
     }
 }

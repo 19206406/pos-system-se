@@ -1,6 +1,8 @@
-﻿using Identity.Application.Contracts.Persistence;
+﻿using Identity.Application.Contracts.Messaging;
+using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Security;
 using Identity.Application.Contracts.Services;
+using Identity.Application.Messaging.Messages;
 using Shared.CQRS;
 using Shared.Exceptions;
 using Shared.Mediator;
@@ -14,19 +16,22 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
         private readonly IPasswordHasher _passwordHasher;
         private readonly TimeProvider _timeProvider;
         private readonly IAuthSessionService _authSessionService;
+        private readonly IOutbox _outbox;
 
         public ChangePasswordCommandHandler(
             IUserRepository userRepository,
             IUnitOfWork unitOfWork,
             TimeProvider timeProvider,
             IPasswordHasher passwordHasher,
-            IAuthSessionService authSessionService)
+            IAuthSessionService authSessionService,
+            IOutbox outbox)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _authSessionService = authSessionService;
             _passwordHasher = passwordHasher;
             _timeProvider = timeProvider;
+            _outbox = outbox;
         }
 
         public async Task<Unit> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
@@ -45,6 +50,7 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
             // never a password that was not changed
             user.HashPassword = _passwordHasher.Hash(command.NewPassword);
             user.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+            _outbox.Enqueue(new PasswordChanged(user.Id));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             await _authSessionService.RevokeOtherUserSessionsAsync(user.Id, command.CurrentSessionId, cancellationToken);

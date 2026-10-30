@@ -83,8 +83,10 @@ El diseño completo de autenticación y autorización está en `docs/identity-au
 
 ## Base de datos y entorno local
 
-- PostgreSQL 16 en Docker Compose: servicio `postgres-posdb`, contenedor `posdb`, puerto del host 5433, base `pos_db`. Patrón `docker-compose.yml` base más `docker-compose.override.yml` con secretos y puertos solo en el override.
-- Connection string `PosSystemDb`, definida en `appsettings.Development.json` del host.
+- PostgreSQL 16 en Docker Compose: servicio `postgres-posdb`, contenedor `posdb`, puerto del host 5433, base `pos_db`. Patrón `docker-compose.yml` base más `docker-compose.override.yml` con puertos y variables solo en el override. Los valores secretos vienen de `.env` (ignorado por git; plantilla en `.env.example`).
+- Correo en desarrollo: servicio `mailpit` del override (SMTP en `localhost:1025`, bandeja en `http://localhost:8025`). Los enlaces de invitación y reset llegan ahí.
+- Secretos del host en desarrollo, con user-secrets del proyecto `PosSystem.Api`: `ConnectionStrings:PosSystemDb` y `Jwt:SigningKey` (mínimo 32 caracteres). Nunca en `appsettings*.json`.
+- El correo y otros efectos secundarios se registran en `identity.outbox_messages` en la misma transacción que el cambio que los origina, y los entrega `OutboxProcessorService`. Los payloads nunca llevan tokens ni contraseñas: el token se genera al entregar el mensaje.
 - Las migraciones de Identity usan tabla de historial propia en el schema `identity` (minúsculas). La migración `Initial` se regeneró el 2026-10-30 (decisión D1 de la auditoría: el schema aplicado antes era `"identity  "`, con espacios). Una vez aplicada, **no se edita**; los cambios van en migraciones nuevas.
 - Migraciones en producción: previstas como Job de Kubernetes, no al arrancar el pod. No bloquear el pipeline HTTP esperando la base de datos.
 

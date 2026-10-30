@@ -9,6 +9,7 @@ namespace Identity.Application.Contracts.Persistence
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
         /// <summary> Expects the email already normalized with EmailNormalizer. </summary>
         Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
+        Task<bool> AnyInRoleAsync(Guid roleId, CancellationToken cancellationToken);
         Task<User?> GetWithPasswordTokensAsync(Guid userId, CancellationToken cancellationToken);
         void AddUser(User user);
     }

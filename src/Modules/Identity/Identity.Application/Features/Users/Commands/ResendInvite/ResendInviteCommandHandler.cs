@@ -1,5 +1,6 @@
-﻿using Identity.Application.Contracts.Persistence;
-using Identity.Application.Contracts.Security;
+﻿using Identity.Application.Contracts.Messaging;
+using Identity.Application.Contracts.Persistence;
+using Identity.Application.Messaging.Messages;
 using Shared.CQRS;
 using Shared.Exceptions;
 using Shared.Mediator;
@@ -9,23 +10,14 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
     public sealed class ResendInviteCommandHandler : ICommandHandler<ResendInviteCommand>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IPasswordTokenRepository _passwordTokenRepository;
-        private readonly IPasswordTokenIssuer _passwordTokenIssuer;
+        private readonly IOutbox _outbox;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly TimeProvider _timeProvider;
 
-        public ResendInviteCommandHandler(
-            IUserRepository userRepository,
-            IPasswordTokenRepository passwordTokenRepository,
-            IPasswordTokenIssuer passwordTokenIssuer,
-            IUnitOfWork unitOfWork,
-            TimeProvider timeProvider)
+        public ResendInviteCommandHandler(IUserRepository userRepository, IOutbox outbox, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
-            _passwordTokenRepository = passwordTokenRepository;
-            _passwordTokenIssuer = passwordTokenIssuer;
+            _outbox = outbox;
             _unitOfWork = unitOfWork;
-            _timeProvider = timeProvider;
         }
 
         public async Task<Unit> Handle(ResendInviteCommand command, CancellationToken cancellationToken)
@@ -37,18 +29,10 @@ namespace Identity.Application.Features.Users.Commands.ResendInvite
             if (user.HashPassword is not null)
                 throw new BusinessException("The user already has a password; an invite cannot be resent.");
 
-            var now = _timeProvider.GetUtcNow().UtcDateTime;
-
-            // Only the newest link works (decision D9)
-            await _passwordTokenRepository.RevokeAllActiveByUserAsync(user.Id, now, cancellationToken);
-
-            var invite = _passwordTokenIssuer.IssueInvite(now);
-            invite.Entity.UserId = user.Id;
-            _passwordTokenRepository.Add(invite.Entity);
-
+            // Delivery invalidates the earlier invites and issues the new token (decision D9)
+            _outbox.Enqueue(new UserInviteRequested(user.Id));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Pending: hand invite.PlainText to the email delivery (no delivery mechanism exists yet)
             return Unit.Value;
         }
     }

@@ -1,5 +1,7 @@
 ﻿using Identity.Application.Contracts.Services;
 using Identity.Application.Features.Users.Commands.CreateUser;
+using Identity.Application.Messaging;
+using Identity.Application.Messaging.Handlers;
 using Identity.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Mediator;
@@ -12,15 +14,23 @@ namespace Identity.Application
         {
 
             /// <sumary>
-            /// this line is only responsible for obtaining the assembly 
-            /// nothing else should be added for fluentvalidation validations 
+            /// this line is only responsible for obtaining the assembly
+            /// nothing else should be added for fluentvalidation validations
             /// </sumary>
             var assembly = typeof(CreateUserCommand).Assembly;
 
             services.AddMediator(assembly);
             services.AddMediatorValidation(assembly);
 
-            services.AddScoped<IAuthSessionService, AuthSessionService>(); 
+            services.AddScoped<IAuthSessionService, AuthSessionService>();
+            services.AddScoped<AdminBootstrapper>();
+
+            // Outbox: one explicit registration per message type; OutboxMessageProcessor finds them by MessageType
+            services.AddScoped<OutboxMessageProcessor>();
+            services.AddScoped<PasswordLinkEmailSender>();
+            services.AddScoped<IOutboxMessageHandler, UserInviteRequestedHandler>();
+            services.AddScoped<IOutboxMessageHandler, PasswordResetRequestedHandler>();
+            services.AddScoped<IOutboxMessageHandler, PasswordChangedHandler>();
 
             return services;
         }

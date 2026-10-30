@@ -9,11 +9,13 @@ using Identity.Application.Features.Auth.Commands.SetPassword;
 using Identity.Application.Features.Auth.Queries.GetCurrentUser;
 using Identity.Application.Features.Auth.Queries.GetMySessions;
 using Identity.Application.Features.Auth.Queries.ValidatePasswordToken;
+using Identity.Presentation.Authentication;
 using Identity.Presentation.Extensions;
 using Identity.Presentation.Requests.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Shared.Mediator;
 
 namespace Identity.Presentation.Controllers
@@ -34,6 +36,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting(IdentityRateLimitPolicies.Credentials)]
         [AllowAnonymous]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -59,6 +62,7 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Same 202 whether or not the email exists. </summary>
         [HttpPost("forgot-password")]
+        [EnableRateLimiting(IdentityRateLimitPolicies.PasswordTokens)]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -71,6 +75,7 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Checks an invite or reset link without consuming it. </summary>
         [HttpGet("password-token/validate")]
+        [EnableRateLimiting(IdentityRateLimitPolicies.PasswordTokens)]
         [AllowAnonymous]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -84,6 +89,7 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Sets the password from an invite or reset token and closes every session of the user. </summary>
         [HttpPost("set-password")]
+        [EnableRateLimiting(IdentityRateLimitPolicies.Credentials)]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -96,6 +102,7 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Exchanges a refresh token for a new token pair; the refresh token sent is invalidated. </summary>
         [HttpPost("refresh")]
+        [EnableRateLimiting(IdentityRateLimitPolicies.Refresh)]
         [AllowAnonymous]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -122,6 +129,7 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Changes the password and closes every other session; the current one is kept. </summary>
         [HttpPost("change-password")]
+        [EnableRateLimiting(IdentityRateLimitPolicies.Credentials)]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
