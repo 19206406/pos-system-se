@@ -7,6 +7,7 @@
     <Project Path="src/Modules/Identity/Identity.Application/Identity.Application.csproj" />
     <Project Path="src/Modules/Identity/Identity.Domain/Identity.Domain.csproj" />
     <Project Path="src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure.csproj" />
+    <Project Path="src/Modules/Identity/Identity.Module/Identity.Module.csproj" />
     <Project Path="src/Modules/Identity/Identity.Persistence/Identity.Persistence.csproj" />
     <Project Path="src/Modules/Identity/Identity.Presentation/Identity.Presentation.csproj" Id="93b1e6eb-fac7-4954-a779-08c8a5b670a8" />
   </Folder>

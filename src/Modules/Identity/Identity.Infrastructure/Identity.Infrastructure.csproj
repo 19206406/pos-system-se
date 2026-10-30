@@ -11,6 +11,11 @@
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
   </ItemGroup>
 
+  <!-- Options binding/validation and IConfiguration; previously reached it transitively through Shared -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Identity.Application\Identity.Application.csproj" />
   </ItemGroup>

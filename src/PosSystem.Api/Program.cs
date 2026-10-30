@@ -1,4 +1,4 @@
-using Identity.Presentation;
+using Identity.Module;
 using PosSystem.Api.ExceptionHandling;
 using Scalar.AspNetCore;
 

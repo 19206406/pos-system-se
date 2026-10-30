@@ -29,14 +29,16 @@ Este archivo es la fuente de verdad sobre cómo está construido el proyecto y c
   - `Identity.Infrastructure` — seguridad (hashing de contraseñas, generación de tokens JWT y refresh).
   - `Identity.Persistence` — `IdentityDbContext`, configuraciones EF, repositorios.
   - `Identity.Presentation` — controladores MVC, requests HTTP, configuración de autenticación JWT Bearer y políticas.
-- Cada capa expone su propio registro de DI con el patrón `AddIdentity<Capa>Services`, y `Program.cs` solo los compone.
+  - `Identity.Module` — raíz de composición del módulo. Sin lógica: solo `AddIdentityModule`, que llama a los registros de cada capa.
+- Cada capa expone su propio registro de DI con el patrón `AddIdentity<Capa>Services`. El proyecto `<Módulo>.Module` los compone, y `Program.cs` solo llama a un `Add<Módulo>Module` por módulo.
 - **Verificar:** pueden quedar proyectos heredados de una estructura anterior (`Identity.Api`, `Identity.Data`, `Identity.DTOs`, `Identity.UseCases`). Si existen, repórtalos; no los borres sin preguntar.
 
 ### Reglas de dependencia (se hacen cumplir con referencias de proyecto)
 
 - Domain no referencia a nadie. Application referencia Domain y Shared.
 - Infrastructure, Persistence y Presentation referencian Application (y Domain si lo necesitan). **No se referencian entre sí.**
-- Solo el host referencia todas las capas.
+- Solo `<Módulo>.Module` referencia todas las capas de su módulo. El host referencia únicamente los proyectos `.Module`.
+- `Shared` no referencia ASP.NET Core, para que Application no vea `HttpContext`. Las capas que necesitan opciones, configuración o HTTP (Infrastructure, Presentation) declaran su propia `FrameworkReference`.
 - Application nunca ve `HttpContext`, EF Core ni `IdentityDbContext`: define contratos y Persistence/Infrastructure los implementan.
 - Entre módulos solo hay interfaces públicas de contrato o eventos de integración. Sin llaves foráneas entre schemas, sin acceso directo a tablas de otro módulo, sin transacciones entre módulos.
 
