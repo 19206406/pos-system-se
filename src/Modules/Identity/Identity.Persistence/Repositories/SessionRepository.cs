@@ -1,5 +1,4 @@
 ﻿using Identity.Application.Contracts.Persistence;
-using Identity.Application.Dtos.Authentication;
 using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,16 +49,6 @@ namespace Identity.Persistence.Repositories
         public async Task RevokeAllActiveByUserExceptAsync(Guid userId, Guid exceptSessionId, DateTime nowUtc, CancellationToken cancellationToken) =>
             await _context.Sessions.Where(s => s.UserId == userId && s.RevokedAt == null)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.RevokedAt, nowUtc), cancellationToken);
-
-        public async Task<IReadOnlyList<SessionSummaryDto>> GetActiveByUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken) =>
-            await _context.Sessions.AsNoTracking()
-                .Where(s => s.UserId == userId && s.RevokedAt == null && s.ExpiresAt > nowUtc)
-                .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new SessionSummaryDto(s.Id, s.DeviceInfo, s.IpAddress, s.CreatedAt, s.ExpiresAt))
-                .ToListAsync(cancellationToken); 
-
-
-
 
         public async Task<int> CountAllActiveByUserAsync(Guid userId, CancellationToken cancellationToken)
             => await _context.Sessions

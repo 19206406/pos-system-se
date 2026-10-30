@@ -5,24 +5,23 @@ namespace Identity.Application.Features.Auth.Queries.GetMySessions
 {
     public sealed class GetMySessionsQueryHandler : IQueryHandler<GetMySessionsQuery, GetMySessionsResponse>
     {
-        private readonly ISessionRepository _sessionRepository;
+        private readonly ISessionReadRepository _sessionReadRepository;
         private readonly TimeProvider _timeProvider;
 
-        public GetMySessionsQueryHandler(ISessionRepository sessionRepository, TimeProvider timeProvider)
+        public GetMySessionsQueryHandler(ISessionReadRepository sessionReadRepository, TimeProvider timeProvider)
         {
-            _sessionRepository = sessionRepository;
+            _sessionReadRepository = sessionReadRepository;
             _timeProvider = timeProvider;
         }
 
         /// <summary>
-        /// This action depends directly on the information contained in the JWT; 
-        /// without it, the action cannot be executed because the endpoint does not receive any parameters, 
-        /// either in the body or in the header. 
+        /// UserId and CurrentSessionId come from the "sub" and "sid" claims; CurrentSessionId
+        /// is only used to flag which of the listed sessions is the one making the request.
         /// </summary>
         public async Task<GetMySessionsResponse> Handle(GetMySessionsQuery query, CancellationToken cancellationToken)
         {
             var now = _timeProvider.GetUtcNow().UtcDateTime;
-            var sessions = await _sessionRepository.GetActiveByUserAsync(query.UserId, now, cancellationToken);
+            var sessions = await _sessionReadRepository.GetActiveByUserAsync(query.UserId, now, cancellationToken);
 
             var items = sessions
                 .Select(s => new MySessionItem(

@@ -8,8 +8,5 @@ namespace Identity.Application.Contracts.Persistence
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
         Task<User?> GetWithPasswordTokensAsync(Guid userId, CancellationToken cancellationToken);
         void AddUser(User user);
-
-        Task<bool> ExistAsync(Guid userId, CancellationToken cancellationToken); 
-
     }
 }

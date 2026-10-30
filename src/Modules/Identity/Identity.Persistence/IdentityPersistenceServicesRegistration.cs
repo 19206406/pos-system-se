@@ -29,7 +29,10 @@ namespace Identity.Persistence
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordTokenRepository, PasswordTokenRepository>();
             services.AddScoped<ISessionRepository, SessionRepository>();
-            services.AddScoped<IUserAccessReader, UserAccessReader>(); 
+            services.AddScoped<IUserAccessReader, UserAccessReader>();
+
+            services.AddScoped<IUserReadRepository, UserReadRepository>();
+            services.AddScoped<ISessionReadRepository, SessionReadRepository>();
 
             return services; 
         }

@@ -1,5 +1,4 @@
-﻿using Identity.Application.Dtos.Authentication;
-using Identity.Domain.Entities;
+﻿using Identity.Domain.Entities;
 
 namespace Identity.Application.Contracts.Persistence
 {
@@ -13,7 +12,6 @@ namespace Identity.Application.Contracts.Persistence
         Task RevokeAllActiveByUserAsync(Guid userId, DateTime now, CancellationToken cancellationToken);
         Task<bool> RevokeActiveByIdAsync(Guid userId, Guid sessionId, DateTime nowUtc, CancellationToken cancellationToken);
         Task RevokeAllActiveByUserExceptAsync(Guid userId, Guid exceptSessionId, DateTime nowUtc, CancellationToken cancellationToken);
-        Task<IReadOnlyList<SessionSummaryDto>> GetActiveByUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken);
 
 
 
