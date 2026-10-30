@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Identity.Application.Validation;
 
 namespace Identity.Application.Features.Auth.Commands.ChangePassword
 {
@@ -6,21 +7,18 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
     {
         public ChangePasswordCommandValidator()
         {
-
             RuleFor(x => x.UserId).NotEmpty();
             RuleFor(x => x.CurrentSessionId).NotEmpty();
 
             RuleFor(x => x.CurrentPassword)
-                .NotEmpty().WithMessage("La contraseña actual es obligatoria")
-                .MaximumLength(25);
+                .NotEmpty().WithMessage("The current password cannot be empty.")
+                .MaximumLength(PasswordRules.MaxLength);
 
-            RuleFor(x => x.NewPassword)
-                .NotEmpty().WithMessage("La contraseña nueva es obligatoria")
-                .MaximumLength(25);
+            RuleFor(x => x.NewPassword).MustBeValidNewPassword();
 
             RuleFor(x => x.NewPassword)
                 .NotEqual(x => x.CurrentPassword)
-                .WithMessage("La nueva contraseña debe ser diferente a la actual.");
+                .WithMessage("The new password must be different from the current one.");
         }
     }
 }

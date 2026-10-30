@@ -35,13 +35,14 @@ namespace Identity.Application.Features.Auth.Commands.ChangePassword
                 ?? throw new NotFoundException("user", command.UserId.ToString());
 
             if (!user.IsActive || user.HashPassword is null)
-                throw new BusinessException("No es posible cambiar la constraseña de esta cuenta");
+                throw new BusinessException("The password of this account cannot be changed.");
 
-
+            // 422, never 401: a 401 makes the client assume the session died and log the user out
             if (!_passwordHasher.Verify(command.CurrentPassword, user.HashPassword))
-                throw new UnauthorizedException("You cannot perform the following action.");
+                throw new BusinessException("The current password is incorrect.");
 
-
+            // Save first, revoke after: if something fails in between, the worst case is one session too many,
+            // never a password that was not changed
             user.HashPassword = _passwordHasher.Hash(command.NewPassword);
             user.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
             await _unitOfWork.SaveChangesAsync(cancellationToken);

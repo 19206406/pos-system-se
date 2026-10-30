@@ -21,7 +21,7 @@ namespace Identity.Application.Features.Users.Commands.ReactivateUser
         public async Task<Unit> Handle(ReactivateUserCommand command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(command.UserId, cancellationToken)
-                       ?? throw new NotFoundException("usuario", command.UserId.ToString()); 
+                       ?? throw new NotFoundException("user", command.UserId.ToString()); 
 
             if (!user.IsActive)
             {

@@ -28,10 +28,10 @@ namespace Identity.Application.Features.Users.Commands.DeactivateUser
         public async Task<Unit> Handle(DeactivateUserCommand command, CancellationToken cancellationToken)
         {
             if (command.UserId == command.RequestedByUserId)
-                throw new UnauthorizedException("No puedes ejecutar esta acción");
+                throw new BusinessException("You cannot deactivate your own account.");
 
             var user = await _userRepository.GetByIdAsync(command.UserId, cancellationToken)
-                ?? throw new NotFoundException("usuario", command.UserId.ToString()); 
+                ?? throw new NotFoundException("user", command.UserId.ToString()); 
 
             if (user.IsActive)
             {
@@ -40,7 +40,7 @@ namespace Identity.Application.Features.Users.Commands.DeactivateUser
                 await _unitOfWork.SaveChangesAsync(cancellationToken); 
             }
 
-            await _authSessionService.RevokeAllUserSessionAsync(user.Id, cancellationToken);
+            await _authSessionService.RevokeAllUserSessionsAsync(user.Id, cancellationToken);
 
             return Unit.Value; 
         }

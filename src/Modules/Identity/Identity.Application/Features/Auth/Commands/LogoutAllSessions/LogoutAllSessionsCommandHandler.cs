@@ -15,7 +15,7 @@ namespace Identity.Application.Features.Auth.Commands.LogoutAllSessions
 
         public async Task<Unit> Handle(LogoutAllSessionsCommand command, CancellationToken cancellationToken)
         {
-            await _authSessionService.RevokeAllUserSessionAsync(command.UserId, cancellationToken); 
+            await _authSessionService.RevokeAllUserSessionsAsync(command.UserId, cancellationToken); 
             return Unit.Value; 
         }
     }

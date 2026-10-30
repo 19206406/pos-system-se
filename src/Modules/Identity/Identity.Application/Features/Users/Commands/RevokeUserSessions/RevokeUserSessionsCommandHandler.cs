@@ -23,7 +23,7 @@ namespace Identity.Application.Features.Users.Commands.RevokeUserSessions
             if (!await _userReadRepository.ExistsAsync(command.UserId, cancellationToken))
                 throw new NotFoundException("user", command.UserId.ToString());
 
-            await _authSessionService.RevokeAllUserSessionAsync(command.UserId, cancellationToken);
+            await _authSessionService.RevokeAllUserSessionsAsync(command.UserId, cancellationToken);
             return Unit.Value;
         }
     }
