@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Shared.Constants.Claims;
@@ -13,14 +14,14 @@ namespace Identity.Presentation
 {
     public static class IdentityPresentationServicesRegistration
     {
-        public static IServiceCollection AddIdentityPresentationServices(this IServiceCollection services)
+        public static IServiceCollection AddIdentityPresentationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers()
                 .AddApplicationPart(typeof(IdentityPresentationServicesRegistration).Assembly);
 
             AddAuthentication(services);
             AddAuthorization(services);
-            AddRateLimiting(services);
+            AddRateLimiting(services, configuration);
 
             return services;
         }
@@ -50,8 +51,10 @@ namespace Identity.Presentation
             });
         }
 
-        private static void AddRateLimiting(IServiceCollection services)
+        private static void AddRateLimiting(IServiceCollection services, IConfiguration configuration)
         {
+            var limits = configuration.GetSection(IdentityRateLimitOptions.SectionName).Get<IdentityRateLimitOptions>() ?? new();
+
             services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -68,9 +71,9 @@ namespace Identity.Presentation
                     });
                 };
 
-                AddFixedWindowPerClientIp(options, IdentityRateLimitPolicies.Credentials, permitLimit: 5, window: TimeSpan.FromMinutes(1));
-                AddFixedWindowPerClientIp(options, IdentityRateLimitPolicies.PasswordTokens, permitLimit: 5, window: TimeSpan.FromMinutes(15));
-                AddFixedWindowPerClientIp(options, IdentityRateLimitPolicies.Refresh, permitLimit: 30, window: TimeSpan.FromMinutes(1));
+                AddFixedWindowPerClientIp(options, IdentityRateLimitPolicies.Credentials, permitLimit: limits.CredentialsPermitLimit, window: TimeSpan.FromSeconds(limits.CredentialsWindowSeconds));
+                AddFixedWindowPerClientIp(options, IdentityRateLimitPolicies.PasswordTokens, permitLimit: limits.PasswordTokensPermitLimit, window: TimeSpan.FromSeconds(limits.PasswordTokensWindowSeconds));
+                AddFixedWindowPerClientIp(options, IdentityRateLimitPolicies.Refresh, permitLimit: limits.RefreshPermitLimit, window: TimeSpan.FromSeconds(limits.RefreshWindowSeconds));
             });
         }
 

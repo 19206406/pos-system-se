@@ -14,7 +14,7 @@ namespace Identity.Module
             services.AddIdentityApplicationServices();
             services.AddIdentityInfrastructureServices(configuration);
             services.AddIdentityPersistenceServices(configuration);
-            services.AddIdentityPresentationServices();
+            services.AddIdentityPresentationServices(configuration);
 
             return services;
         }

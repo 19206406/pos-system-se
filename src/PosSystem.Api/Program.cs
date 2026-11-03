@@ -53,3 +53,6 @@ app.MapHealthChecks("/health").AllowAnonymous();
 app.MapControllers();
 
 app.Run();
+
+// Lets the integration tests start this host with WebApplicationFactory<Program>
+public partial class Program;

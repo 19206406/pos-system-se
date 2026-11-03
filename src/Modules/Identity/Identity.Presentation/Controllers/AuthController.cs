@@ -111,7 +111,7 @@ namespace Identity.Presentation.Controllers
         public async Task<ActionResult<RefreshTokenResponse>> RefreshToken(
             [FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
-            var command = new RefreshTokenCommand(request.RefreshToken, HttpContext.GetClientContext());
+            var command = new RefreshTokenCommand(request.RefreshToken ?? string.Empty, HttpContext.GetClientContext());
             RefreshTokenResponse result = await _sender.Send(command, cancellationToken);
             return Ok(result);
         }

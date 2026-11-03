@@ -410,3 +410,37 @@ Pido aprobación explícita para cada uno.
 - El estado real de la base (Docker apagado): qué schema existe, dónde está la tabla de historial y si hay datos.
 - El comportamiento en tiempo de ejecución más allá del arranque: no hay clave de firma ni base disponibles.
 - Que el código de la referencia compile: lo contrasté por lectura contra las firmas reales (sección f).
+
+---
+
+## Estado al cierre (Fase 5, 2026-10-30)
+
+| Hallazgo | Estado | Fase |
+|---|---|---|
+| B1, B2 y B3 (no compilaba ni arrancaba) | Resuelto | 1 |
+| B4 (schema `"identity  "`) | Resuelto: `Initial` regenerada con el schema `identity` (D1) | 1 |
+| B5 (sin autenticación ni autorización) | Resuelto: JWT Bearer, una política por permiso y política de respaldo | 3 |
+| B6 (SetPassword permitía tomar cualquier cuenta) | Resuelto: el token identifica al usuario y se consume de forma atómica | 2 |
+| B7 (bloqueo tras 4 logins) | Resuelto: se eliminó el límite de sesiones (D5) | 2 |
+| B8 (token en claro en el log) | Resuelto | 2 |
+| I1, I2 (enumeración, usuarios inactivos) | Resuelto | 2 |
+| I3, I4 (validators que no se ejecutaban) | Resuelto. El validator de refresh se eliminó en la Fase 4: un token vacío da 401, no 400 | 1 y 4 |
+| I5, I6, I7, I8 | Resuelto (I8 con D8: un solo tipo de 401) | 1 y 2 |
+| I9, I10, I12 | Resuelto | 2 |
+| I11 (email duplicado o con mayúsculas) | Resuelto. Queda un caso residual: dos altas simultáneas con el mismo email pueden dar 500 por el índice único | 2 |
+| I13, I14, I15 (primer admin, rate limiting, purga) | Resuelto | 3 |
+| I16 (`DateTime` frente a `DateTimeOffset`) | Resuelto con D6 | 1 |
+| I17 (dependencias) | Resuelto con D2, opción C (`Identity.Module`) | 1 |
+| I18 (secretos versionados) | Resuelto con `.env` y user-secrets. **Pendiente:** rotar la contraseña de Postgres, que sigue en el historial de git | 3 |
+| I19 (versiones de EF Core) | Resuelto: todo en 10.0.12 | 3 |
+| I20, I21, I22 | Resuelto | 1 y 2 |
+| M1, M4, M6, M7, M8, M9, M10 | Resuelto | 1 a 5 |
+| M2, M3 | Descartados en la auditoría | — |
+| M5 (CLAUDE.md desactualizado) | Resuelto | 5 |
+| M11 (`password_encryption=md5`) | **Pendiente**, a propósito: cambiarlo puede romper la autenticación del volumen actual | — |
+
+Hallazgos nuevos durante el trabajo, todos resueltos:
+
+- **404 de RevokeMySession:** repetía el id pedido, así que una sesión ajena no daba una respuesta idéntica a una inexistente. Lo detectó una prueba en la Fase 4.
+- **`Bootstrap:AdminEmail` vacío:** impedía arrancar el host. Lo detectó una verificación en la Fase 3.
+- **Conflicto del outbox con "nunca guardar tokens en claro":** se resolvió generando el token al entregar el mensaje (Fase 3).

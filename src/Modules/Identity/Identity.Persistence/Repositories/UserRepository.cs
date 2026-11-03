@@ -18,18 +18,6 @@ namespace Identity.Persistence.Repositories
             _context.Users.Add(user);
         }
 
-        public async Task DisableAsync(Guid id, CancellationToken cancellationToken)
-        {
-            await _context.Users.Where(u => u.Id == id)
-                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, false), cancellationToken); 
-        }
-
-        public async Task EnableAsync(Guid id, CancellationToken cancellationToken)
-        {
-            await _context.Users.Where(u => u.Id == id)
-                .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsActive, true), cancellationToken);
-        }
-
         public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
         {
             User? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
@@ -45,15 +33,6 @@ namespace Identity.Persistence.Repositories
         public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
-            return user;
-        }
-
-        public async Task<User?> GetWithPasswordTokensAsync(Guid id, CancellationToken cancellationToken)
-        {
-            var user = await _context.Users
-                .Include(u => u.PasswordTokens.Where(pt => !pt.UsedAt.HasValue))
-                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
-
             return user;
         }
     }

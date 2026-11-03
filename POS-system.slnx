@@ -15,6 +15,9 @@
   <Folder Name="/src/Shared/Shared/">
     <Project Path="src/Shared/Shared/Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Identity.IntegrationTests/Identity.IntegrationTests.csproj" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

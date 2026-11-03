@@ -11,4 +11,10 @@
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Roles\Commands\DeleteRole\" />
+    <Folder Include="Features\Roles\Commands\UpdateRole\" />
+    <Folder Include="Features\Roles\Queries\GetRoleById\" />
+  </ItemGroup>
+
 </Project>

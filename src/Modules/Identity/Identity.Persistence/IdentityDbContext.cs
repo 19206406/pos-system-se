@@ -27,32 +27,19 @@ namespace Identity.Persistence
         }
 
         /// <summary>
-        /// If action throws exception, Dispose makes automatic rollback.
+        /// Runs <paramref name="action"/> in one transaction, inside the retrying execution strategy.
+        /// If the action throws, disposing the uncommitted transaction rolls everything back.
         /// </summary>
-        /// <param name="action"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>
-        /// Traducir del Galician It does not return any parameters.It is only to control when there is a transaction with an error.
-        /// </returns>
         public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> action, CancellationToken cancellationToken = default)
         {
             var strategy = Database.CreateExecutionStrategy();
 
-            await strategy.ExecuteAsync(async () =>
+            await strategy.ExecuteAsync(async strategyToken =>
             {
-                await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
-                await action(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-            }); 
+                await using var transaction = await Database.BeginTransactionAsync(strategyToken);
+                await action(strategyToken);
+                await transaction.CommitAsync(strategyToken);
+            }, cancellationToken);
         }
-
-        //    Add-Migration Initial `
-        //-Context IdentityDbContext `
-        //-Project Identity.Persistence `
-        //-StartupProject PosSystem.Api `
-        //-OutputDir Persistence/Migrations
-
-
-        // Add-Migration Initial -Context IdentityDbContext -Project Identity.Persistence -StartupProject PosSystem.Api -OutputDir Migrations
     }
 }
