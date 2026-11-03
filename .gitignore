@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 # Local environment secrets for docker compose (template in .env.example)
 .env
+.md 

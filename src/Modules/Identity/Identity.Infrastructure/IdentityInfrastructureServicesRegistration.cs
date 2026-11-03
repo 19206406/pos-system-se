@@ -40,6 +40,7 @@ namespace Identity.Infrastructure
             services.AddHostedService<OutboxProcessorService>();
             services.AddHostedService<RetentionPurgeService>();
             services.AddHostedService<AdminBootstrapService>();
+            services.AddHostedService<PermissionSyncService>();
 
             return services;
         }

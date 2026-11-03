@@ -1,9 +1,11 @@
-﻿using Identity.Application.Contracts.Services;
+﻿using Identity.Application.Authorization;
+using Identity.Application.Contracts.Services;
 using Identity.Application.Features.Users.Commands.CreateUser;
 using Identity.Application.Messaging;
 using Identity.Application.Messaging.Handlers;
 using Identity.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Authorization;
 using Shared.Mediator;
 
 namespace Identity.Application
@@ -24,6 +26,12 @@ namespace Identity.Application
 
             services.AddScoped<IAuthSessionService, AuthSessionService>();
             services.AddScoped<AdminBootstrapper>();
+
+            // Permissions: each module registers its own IModulePermissionCatalog in its registration;
+            // PermissionCatalog combines all of them for the authorization policies and the synchronization
+            services.AddSingleton<IModulePermissionCatalog, IdentityPermissionCatalog>();
+            services.AddSingleton<PermissionCatalog>();
+            services.AddScoped<PermissionCatalogSynchronizer>();
 
             // Outbox: one explicit registration per message type; OutboxMessageProcessor finds them by MessageType
             services.AddScoped<OutboxMessageProcessor>();

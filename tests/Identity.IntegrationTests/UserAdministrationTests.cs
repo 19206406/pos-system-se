@@ -3,7 +3,7 @@ using Identity.Application.Features.Users.Commands.CreateUser;
 using Identity.Application.Features.Users.Queries.GetUsers;
 using Identity.IntegrationTests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Shared.Constants.Claims;
+using Identity.Application.Authorization;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -158,7 +158,9 @@ namespace Identity.IntegrationTests
 
             Assert.Equal(admin.Id, me!.Id);
             Assert.Contains("Admin", me.Roles);
-            Assert.Equal(PermissionCodes.All.Order(), me.Permissions.Order());
+            // Admin holds every permission declared by the catalogs (granted by the permission synchronization)
+            var declaredCodes = new IdentityPermissionCatalog().Permissions.Select(p => p.Code);
+            Assert.Equal(declaredCodes.Order(), me.Permissions.Order());
         }
     }
 }

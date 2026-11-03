@@ -33,9 +33,14 @@ namespace Identity.Persistence
             services.AddScoped<IPasswordTokenRepository, PasswordTokenRepository>();
             services.AddScoped<ISessionRepository, SessionRepository>();
             services.AddScoped<IUserAccessReader, UserAccessReader>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IPermissionSynchronizationStore, PermissionSynchronizationStore>();
 
             services.AddScoped<IUserReadRepository, UserReadRepository>();
             services.AddScoped<ISessionReadRepository, SessionReadRepository>();
+            services.AddScoped<IRoleReadRepository, RoleReadRepository>();
+            services.AddScoped<IPermissionReadRepository, PermissionReadRepository>();
 
             services.AddScoped<IOutbox, Outbox>();
             services.AddScoped<IOutboxStore, OutboxStore>();

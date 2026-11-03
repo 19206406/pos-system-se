@@ -1,6 +1,6 @@
 using Identity.IntegrationTests.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
-using Shared.Constants.Claims;
+using Identity.Application.Authorization;
 using System.Net;
 
 namespace Identity.IntegrationTests
@@ -33,10 +33,10 @@ namespace Identity.IntegrationTests
 
         public static TheoryData<string> InvalidTokens => new()
         {
-            { TestTokens.Create(expiresAt: DateTime.UtcNow.AddMinutes(-5), permissions: PermissionCodes.Users.Read) },
-            { TestTokens.Create(audience: "Some.Other.Audience", permissions: PermissionCodes.Users.Read) },
-            { TestTokens.Create(algorithm: SecurityAlgorithms.HmacSha512, permissions: PermissionCodes.Users.Read) },
-            { TestTokens.Create(signed: false, permissions: PermissionCodes.Users.Read) }
+            { TestTokens.Create(expiresAt: DateTime.UtcNow.AddMinutes(-5), permissions: IdentityPermissionCodes.Users.Read) },
+            { TestTokens.Create(audience: "Some.Other.Audience", permissions: IdentityPermissionCodes.Users.Read) },
+            { TestTokens.Create(algorithm: SecurityAlgorithms.HmacSha512, permissions: IdentityPermissionCodes.Users.Read) },
+            { TestTokens.Create(signed: false, permissions: IdentityPermissionCodes.Users.Read) }
         };
 
         [Theory]
@@ -52,7 +52,7 @@ namespace Identity.IntegrationTests
         public async Task A_hand_made_token_with_the_right_key_and_permission_is_accepted()
         {
             // Control case for the theory above: same builder, valid values
-            var token = TestTokens.Create(permissions: PermissionCodes.Users.Read);
+            var token = TestTokens.Create(permissions: IdentityPermissionCodes.Users.Read);
 
             var response = await TestUsers.CreateClient(_api, token).GetAsync("/api/identity/users");
 

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+using FluentValidation;
+using Identity.Application.Validation;
 
 namespace Identity.Application.Features.Roles.Commands.CreateRole
 {
@@ -6,13 +7,9 @@ namespace Identity.Application.Features.Roles.Commands.CreateRole
     {
         public CreateRoleCommandValidator()
         {
-            RuleFor(x => x.RoleName)
-                .NotEmpty().WithMessage("The name of the new role cannot be left blank.")
-                .MaximumLength(50).WithMessage("The name of the new role cannot exceed 100 characters.");
-
-            RuleFor(x => x.RoleDescription)
-                .NotEmpty().WithMessage("The description of the new role cannot be left blank.")
-                .MaximumLength(250).WithMessage("The description of the new role cannot exceed 100 characters."); 
+            RuleFor(x => x.RoleName).MustBeValidRoleName();
+            RuleFor(x => x.RoleDescription).MustBeValidRoleDescription();
+            RuleFor(x => x.PermissionCodes).MustBeValidPermissionSelection();
         }
     }
 }

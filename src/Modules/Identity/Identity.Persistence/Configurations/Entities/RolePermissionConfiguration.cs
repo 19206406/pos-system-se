@@ -1,7 +1,6 @@
-﻿using Identity.Domain.Entities;
+using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Identity.Persistence.Seed;
 
 namespace Identity.Persistence.Configurations.Entities
 {
@@ -38,7 +37,7 @@ namespace Identity.Persistence.Configurations.Entities
                 .HasConstraintName("fk_roles_permissions_permissions")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasData(IdentitySeedData.RolePermissions);
+            // No HasData: Admin receives every permission from PermissionCatalogSynchronizer
         }
     }
 }

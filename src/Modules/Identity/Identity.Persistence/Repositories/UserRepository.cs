@@ -30,6 +30,14 @@ namespace Identity.Persistence.Repositories
         public async Task<bool> AnyInRoleAsync(Guid roleId, CancellationToken cancellationToken) =>
             await _context.UserRoles.AnyAsync(ur => ur.RoleId == roleId, cancellationToken);
 
+        public async Task<bool> AnyOtherUserInRoleAsync(Guid roleId, Guid excludedUserId, CancellationToken cancellationToken) =>
+            await _context.UserRoles.AnyAsync(ur => ur.RoleId == roleId && ur.UserId != excludedUserId, cancellationToken);
+
+        public async Task<User?> GetByIdWithRolesAsync(Guid userId, CancellationToken cancellationToken) =>
+            await _context.Users
+                .Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
         public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);

@@ -146,6 +146,12 @@ namespace Identity.Persistence.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("identifier");
 
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("module");
+
                     b.Property<string>("PermissionDescription")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -165,44 +171,10 @@ namespace Identity.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("uq_permissions_identifier");
 
-                    b.ToTable("permissions", "identity");
+                    b.HasIndex("Module")
+                        .HasDatabaseName("idx_permissions_module");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("9769750d-a668-463d-a7b1-91dae751524f"),
-                            Identifier = "users.read",
-                            PermissionDescription = "Consultar la lista de usuarios y su detalle.",
-                            PermissionName = "Ver usuarios"
-                        },
-                        new
-                        {
-                            Id = new Guid("1a0a94a4-e6b7-406c-9a41-3af1b5041eee"),
-                            Identifier = "users.create",
-                            PermissionDescription = "Crear usuarios y reenviar invitaciones.",
-                            PermissionName = "Crear usuarios"
-                        },
-                        new
-                        {
-                            Id = new Guid("82f841fc-d993-4c8f-9463-700fe5e8f944"),
-                            Identifier = "users.update",
-                            PermissionDescription = "Desactivar y reactivar usuarios.",
-                            PermissionName = "Modificar usuarios"
-                        },
-                        new
-                        {
-                            Id = new Guid("329bf5b9-e1df-49cd-9f42-27f523a1eb1c"),
-                            Identifier = "sessions.read",
-                            PermissionDescription = "Consultar las sesiones activas de otros usuarios.",
-                            PermissionName = "Ver sesiones"
-                        },
-                        new
-                        {
-                            Id = new Guid("7ae90271-e5e3-4573-adca-3b55657e7c2a"),
-                            Identifier = "sessions.revoke",
-                            PermissionDescription = "Cerrar todas las sesiones de otro usuario.",
-                            PermissionName = "Revocar sesiones"
-                        });
+                    b.ToTable("permissions", "identity");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Role", b =>
@@ -238,7 +210,7 @@ namespace Identity.Persistence.Migrations
                         new
                         {
                             Id = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
-                            RoleDescription = "Administrador con todos los permisos del módulo Identity.",
+                            RoleDescription = "Administrador con todos los permisos de todos los módulos.",
                             RoleName = "Admin"
                         });
                 });
@@ -260,33 +232,6 @@ namespace Identity.Persistence.Migrations
                         .HasDatabaseName("idx_roles_permissions_permission_id");
 
                     b.ToTable("roles_permissions", "identity");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
-                            PermissionId = new Guid("9769750d-a668-463d-a7b1-91dae751524f")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
-                            PermissionId = new Guid("1a0a94a4-e6b7-406c-9a41-3af1b5041eee")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
-                            PermissionId = new Guid("82f841fc-d993-4c8f-9463-700fe5e8f944")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
-                            PermissionId = new Guid("329bf5b9-e1df-49cd-9f42-27f523a1eb1c")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("8f3c2a1e-5b7d-4c9a-9e21-3d4f6a8b0c11"),
-                            PermissionId = new Guid("7ae90271-e5e3-4573-adca-3b55657e7c2a")
-                        });
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Session", b =>
@@ -485,7 +430,7 @@ namespace Identity.Persistence.Migrations
                     b.HasOne("Identity.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_users_roles_roles");
 

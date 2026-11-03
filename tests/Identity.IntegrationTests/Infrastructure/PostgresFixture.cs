@@ -38,6 +38,7 @@ namespace Identity.IntegrationTests.Infrastructure
             await _container.StartAsync();
             await MigrateAsync(ConnectionString);
             _api = new IdentityApiFactory(ConnectionString, Emails);
+            await TestUsers.SynchronizePermissionsAsync(_api);
         }
 
         public async ValueTask DisposeAsync()

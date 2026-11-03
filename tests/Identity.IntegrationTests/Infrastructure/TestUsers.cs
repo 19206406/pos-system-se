@@ -1,5 +1,6 @@
 using Identity.Application.Contracts.Security;
 using Identity.Application.Features.Auth.Commands.LoginUser;
+using Identity.Application.Services;
 using Identity.Domain.Constants;
 using Identity.Domain.Entities;
 using Identity.Persistence;
@@ -76,6 +77,25 @@ namespace Identity.IntegrationTests.Infrastructure
             using var scope = api.Services.CreateScope();
             return await scope.ServiceProvider.GetRequiredService<IdentityDbContext>()
                 .Sessions.CountAsync(s => s.UserId == userId && s.RevokedAt == null);
+        }
+
+        /// <summary>
+        /// Runs the permission synchronization now instead of waiting for PermissionSyncService, so permissions declared
+        /// after the seed migration (roles.*) are in the database before a test logs in. Safe to run concurrently with it.
+        /// </summary>
+        public static async Task<PermissionSyncResult> SynchronizePermissionsAsync(IdentityApiFactory api)
+        {
+            using var scope = api.Services.CreateScope();
+            return await scope.ServiceProvider.GetRequiredService<PermissionCatalogSynchronizer>()
+                .SynchronizeAsync(CancellationToken.None);
+        }
+
+        public static async Task AssignRoleAsync(IdentityApiFactory api, Guid userId, Guid roleId)
+        {
+            using var scope = api.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+            db.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
+            await db.SaveChangesAsync();
         }
 
         public static async Task WithDbAsync(IdentityApiFactory api, Func<IdentityDbContext, Task> action)

@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Features.Roles.Commands.CreateRole
+namespace Identity.Application.Features.Roles.Commands.CreateRole
 {
-    public sealed record CreateRoleResponse(Guid Id, string RoleName, string RoleDescription); 
+    public sealed record CreateRoleResponse(Guid Id, string RoleName, string RoleDescription, IReadOnlyList<string> PermissionCodes);
 }

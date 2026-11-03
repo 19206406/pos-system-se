@@ -1,9 +1,12 @@
-﻿using Identity.Application.Features.Users.Commands.CreateUser;
+using Identity.Application.Authorization;
+using Identity.Application.Features.Users.Commands.CreateUser;
 using Identity.Application.Features.Users.Commands.DeactivateUser;
 using Identity.Application.Features.Users.Commands.ReactivateUser;
 using Identity.Application.Features.Users.Commands.ResendInvite;
 using Identity.Application.Features.Users.Commands.RevokeUserSessions;
+using Identity.Application.Features.Users.Commands.UpdateUserRoles;
 using Identity.Application.Features.Users.Queries.GetUserById;
+using Identity.Application.Features.Users.Queries.GetUserRoles;
 using Identity.Application.Features.Users.Queries.GetUsers;
 using Identity.Application.Features.Users.Queries.GetUserSessions;
 using Identity.Presentation.Extensions;
@@ -11,7 +14,6 @@ using Identity.Presentation.Requests.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Constants.Claims;
 using Shared.Mediator;
 
 namespace Identity.Presentation.Controllers
@@ -29,7 +31,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = PermissionCodes.Users.Read)]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Read)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<GetUsersResponse>> GetUsers(
@@ -41,7 +43,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize(Policy = PermissionCodes.Users.Read)]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Read)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<GetUserByIdResponse>> GetUserById(Guid id, CancellationToken cancellationToken)
@@ -52,7 +54,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = PermissionCodes.Users.Create)]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Create)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -66,7 +68,7 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Issues a new invite for a user who has not set a password yet; earlier links stop working. </summary>
         [HttpPost("{id:guid}/resend-invite")]
-        [Authorize(Policy = PermissionCodes.Users.Create)]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Create)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -77,7 +79,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpPost("{id:guid}/deactivate")]
-        [Authorize(Policy = PermissionCodes.Users.Update)]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Update)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -88,7 +90,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpPost("{id:guid}/reactivate")]
-        [Authorize(Policy = PermissionCodes.Users.Update)]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Update)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ReactivateUser([FromRoute] Guid id, CancellationToken cancellationToken)
@@ -98,7 +100,7 @@ namespace Identity.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}/sessions")]
-        [Authorize(Policy = PermissionCodes.Sessions.Read)]
+        [Authorize(Policy = IdentityPermissionCodes.Sessions.Read)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<GetUserSessionsResponse>> GetUserSessions(
@@ -110,12 +112,39 @@ namespace Identity.Presentation.Controllers
 
         /// <summary> Closes every session of the user without deactivating the account. </summary>
         [HttpDelete("{id:guid}/sessions")]
-        [Authorize(Policy = PermissionCodes.Sessions.Revoke)]
+        [Authorize(Policy = IdentityPermissionCodes.Sessions.Revoke)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RevokeUserSessions([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             await _sender.Send(new RevokeUserSessionsCommand(id), cancellationToken);
+            return NoContent();
+        }
+
+        [HttpGet("{id:guid}/roles")]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Read)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GetUserRolesResponse>> GetUserRoles([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            GetUserRolesResponse result = await _sender.Send(new GetUserRolesQuery(id), cancellationToken);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Replaces the user's roles with the given set: assigns the missing ones and revokes the rest.
+        /// Takes effect on the user's next refresh; the Admin role cannot be revoked from its last holder.
+        /// </summary>
+        [HttpPut("{id:guid}/roles")]
+        [Authorize(Policy = IdentityPermissionCodes.Roles.Assign)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> UpdateUserRoles(
+            [FromRoute] Guid id, [FromBody] UpdateUserRolesRequest request, CancellationToken cancellationToken)
+        {
+            await _sender.Send(new UpdateUserRolesCommand(id, request.RoleIds), cancellationToken);
             return NoContent();
         }
     }

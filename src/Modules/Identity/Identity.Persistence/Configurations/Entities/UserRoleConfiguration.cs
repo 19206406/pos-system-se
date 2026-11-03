@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Entities;
+using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -31,11 +31,12 @@ namespace Identity.Persistence.Configurations.Entities
                 .HasConstraintName("fk_users_roles_users")
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Restrict: deleting a role that users still hold must fail, never revoke their access silently
             builder.HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId)
                 .HasConstraintName("fk_users_roles_roles")
-                .OnDelete(DeleteBehavior.Cascade); 
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

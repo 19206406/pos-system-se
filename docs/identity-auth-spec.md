@@ -26,6 +26,11 @@ Documento de referencia permanente. Define el diseño, el comportamiento exacto 
 | `IPasswordTokenIssuer` (tokens invite y reset) | Application (contrato), Infrastructure | Solo los handlers del outbox que entregan invitaciones y resets | Acciones HTTP |
 | `IOutbox` (escritura de mensajes) | Application (contrato), Persistence | Acciones que provocan un correo: CreateUser, ResendInvite, ForgotPassword, SetPassword, ChangePassword, y el arranque del primer admin | Handlers del outbox |
 | `IOutboxStore` y `OutboxMessageProcessor` | Persistence y Application | Solo el procesador en segundo plano | Acciones HTTP |
+| `IModulePermissionCatalog` (contrato) | Shared | Cada módulo lo implementa una vez y lo registra en DI | — |
+| `PermissionCatalog` (todos los catálogos, validados) | Application | Políticas de autorización, sincronización de permisos, queries de roles y permisos | — |
+| `PermissionCatalogSynchronizer` e `IPermissionSynchronizationStore` | Application y Persistence | Solo el servicio de arranque `PermissionSyncService` | Acciones HTTP |
+| `IRoleRepository`, `IPermissionRepository` (escritura) | Persistence | Comandos de roles y de roles de usuario | Queries |
+| `IRoleReadRepository`, `IPermissionReadRepository` (lectura) | Persistence | Queries de roles, permisos y roles de usuario | Comandos de escritura |
 
 Los tokens de password (`invite`, `reset`) son un mecanismo distinto, con su propia tabla. No reutilizan los generadores del refresh token, y no los generan las acciones HTTP sino la entrega del outbox (sección 11).
 
@@ -60,8 +65,12 @@ Otras secciones del módulo, todas validadas al arrancar:
 
 ## 5. Autorización
 
-- Permisos como códigos de texto (por ejemplo `users.read`, `users.create`, `users.update`, `sessions.read`, `sessions.revoke`) definidos en `PermissionCodes`. Cada código debe existir en tres sitios: la tabla `permissions` (seed), el rol correspondiente y la lista `PermissionCodes.All`. Si falta en la lista, la política no existe y usarla produce un 500.
-- Una política por código, que exige el claim `permission` con ese valor.
+- Permisos como códigos de texto con forma `recurso.accion` en minúsculas (por ejemplo `users.read`, `sessions.revoke`, `roles.assign`). Son acciones predefinidas: no se crean, modifican ni borran desde la API.
+- **Cada módulo declara sus permisos en código**, en su propia implementación de `IModulePermissionCatalog` (contrato en Shared), que registra en DI. El catálogo da el código del módulo, su nombre visible y la lista de permisos con nombre y descripción. Los de Identity están en `IdentityPermissionCatalog`, con sus constantes en `IdentityPermissionCodes` (Application). Ningún módulo necesita referenciar a otro para declarar permisos.
+- `PermissionCatalog` reúne todos los catálogos registrados y los valida al arrancar: un código repetido (aunque sea en módulos distintos), un formato inválido o textos fuera de las longitudes de la tabla impiden que la aplicación inicie.
+- Cada permiso pertenece a un módulo (columna `permissions.module`, el código del módulo, por ejemplo `identity`). El código del permiso es único en toda la aplicación (`uq_permissions_identifier`).
+- Una política por código declarado, que exige el claim `permission` con ese valor. Un código usado en un atributo de autorización que ningún catálogo declara no tiene política y produce un 500.
+- `roles.update` y `roles.assign` equivalen en la práctica a privilegios de administrador: quien los tiene puede darse a sí mismo cualquier permiso (editando un rol que tenga o asignándose el rol Admin). Solo deben concederse a administradores.
 - **Política de respaldo**: todo endpoint sin atributo exige usuario autenticado. Los públicos llevan `[AllowAnonymous]` explícito, incluido el endpoint de health checks.
 - Los permisos viajan en el token: un cambio de rol se refleja en el siguiente refresh (máximo 15 minutos). Si se retira un privilegio sensible y debe aplicar de inmediato, revocar las sesiones del usuario afectado.
 - Desactivar un usuario revoca sus sesiones, pero su access token vigente funciona hasta que expire (máximo 15 minutos). Decisión aceptada para un POS; si deja de serlo, reducir la duración del access token.
@@ -106,6 +115,26 @@ Duración recomendada de tokens de password: invite 48 a 72 horas, reset 15 a 30
 | GetUserSessions | Query | `GET /users/{id}/sessions` | `sessions.read` | 404 si el usuario no existe; mismas reglas de proyección que GetMySessions |
 | RevokeUserSessions | Command | `DELETE /users/{id}/sessions` | `sessions.revoke` | 404 si el usuario no existe; revoca todas sin desactivarlo |
 
+### 6.4 Roles, permisos y roles de usuario
+
+Los permisos se eligen por su **código** (estable entre entornos), no por id: los ids de los permisos nuevos los genera la base de datos al sincronizar y difieren entre entornos. Los roles se identifican por id.
+
+El rol **Admin** es un rol de sistema (id fijo en `SystemRoles`): siempre tiene todos los permisos declarados, porque la sincronización le concede los nuevos, y no se puede renombrar, modificar ni eliminar (422).
+
+Los cambios de permisos de un rol y de roles de un usuario llegan al usuario en su siguiente refresh (sección 5); no se revocan sesiones automáticamente.
+
+| Acción | Tipo | Ruta | Permiso | Comportamiento exacto |
+|---|---|---|---|---|
+| GetPermissions | Query | `GET /permissions` | `roles.read` | Todos los permisos de la tabla, agrupados por módulo (nombre visible tomado del catálogo; el código si ningún catálogo declara ya ese módulo), ordenados por nombre de módulo y por código |
+| GetModulePermissions | Query | `GET /permissions/modules/{moduleCode}` | `roles.read` | Permisos de un módulo, por su código (los módulos no tienen id; sin distinguir mayúsculas), ordenados por código. 404 si ningún catálogo declara el módulo y la tabla no tiene permisos suyos; lista vacía si está declarado pero aún no se sincronizó |
+| GetRoles | Query | `GET /roles` | `roles.read` | Sin paginar; por cada rol: id, nombre, descripción, si es de sistema, cuántos permisos y cuántos usuarios lo tienen; orden por nombre e id |
+| GetRoleById | Query | `GET /roles/{id}` | `roles.read` | Datos del rol y sus permisos agrupados por módulo; 404 si no existe |
+| CreateRole | Command | `POST /roles` | `roles.create` | Nombre (1 a 50), descripción (1 a 250) y lista de códigos de permiso (obligatoria, puede estar vacía; los duplicados se ignoran). Nombre repetido sin distinguir mayúsculas: 422. Algún código inexistente: 422 y no se crea nada. Responde 200 con el rol y sus códigos |
+| UpdateRole | Command | `PUT /roles/{id}` | `roles.update` | Reemplaza nombre, descripción y permisos: la lista es el estado final deseado, se agregan los que faltan y se quitan los que sobran, en una sola operación. 404 si no existe; 422 si es Admin, si el nombre lo usa otro rol o si algún código no existe |
+| DeleteRole | Command | `DELETE /roles/{id}` | `roles.delete` | 404 si no existe; 422 si es Admin o si algún usuario lo tiene asignado (nunca revoca accesos en silencio). El borrado es condicional ("solo si nadie lo tiene") y la FK `fk_users_roles_roles` es `ON DELETE RESTRICT` como última barrera. Sus asignaciones de permisos se borran en cascada |
+| GetUserRoles | Query | `GET /users/{id}/roles` | `users.read` | Roles del usuario (id y nombre), por nombre; 404 si el usuario no existe (un usuario sin roles no se confunde con uno inexistente) |
+| UpdateUserRoles | Command | `PUT /users/{id}/roles` | `roles.assign` | La lista de ids es el estado final deseado: asigna los que faltan y revoca los demás; vacía revoca todos. 404 si el usuario no existe; 422 si algún rol no existe. No se puede quitar el rol Admin a su último titular (422): la comprobación se hace bajo un bloqueo de la fila del rol Admin dentro de la transacción, de modo que dos peticiones simultáneas no pueden dejar el sistema sin administrador |
+
 ## 7. Regla de contraseña nueva
 
 Longitud mínima 10 y máxima 128 (el máximo evita entradas enormes contra Argon2id). Una única regla compartida debe aplicarse en SetPassword y ChangePassword.
@@ -116,7 +145,12 @@ Longitud mínima 10 y máxima 128 (el máximo evita entradas enormes contra Argo
 
 ## 9. Piezas transversales
 
-1. Bootstrap del primer administrador. Los permisos de `PermissionCodes.All`, el rol Admin y su relación se crean con el seed de la migración. Mientras nadie tenga el rol Admin, al arrancar se asigna ese rol al email de `Bootstrap:AdminEmail` (se crea el usuario si no existe) y se le envía una invitación.
+1. Bootstrap del primer administrador y sincronización de permisos.
+   - El rol Admin se crea con el seed de la migración. Mientras nadie tenga el rol Admin, al arrancar se asigna ese rol al email de `Bootstrap:AdminEmail` (se crea el usuario si no existe) y se le envía una invitación.
+   - Los permisos **no** se siembran con migraciones. `PermissionSyncService` ejecuta al arrancar, en segundo plano y con reintentos (no bloquea el pipeline HTTP), la sincronización de la tabla `permissions` con los catálogos de todos los módulos, en una transacción: inserta los permisos nuevos, actualiza módulo, nombre y descripción solo si cambiaron, y concede al rol Admin los que le falten.
+   - Es idempotente y segura con varias instancias arrancando a la vez (inserciones con resolución de conflicto por código): una segunda ejecución no escribe nada. No toca los permisos de ningún rol distinto de Admin.
+   - Un permiso que desaparece del código **no se borra**, porque puede haber roles que lo referencien: se registra una advertencia con su código para eliminarlo a propósito con una migración.
+   - Agregar un permiso es declararlo en el catálogo de su módulo; no hace falta migración. Los cinco permisos que sembró la migración `AddOutboxAndSeedData` conservan sus ids; desde `AddPermissionModuleAndRestrictRoleDelete` los gestiona la sincronización por su código.
 2. Rate limiting nativo, por IP:
    - Login, set-password y cambio de contraseña: 5 por minuto.
    - Forgot-password y validación de token: 5 cada 15 minutos.
@@ -159,6 +193,19 @@ Longitud mínima 10 y máxima 128 (el máximo evita entradas enormes contra Argo
 
 **Arranque**
 - Con la clave de firma vacía o menor a 32 caracteres, la aplicación no inicia.
+
+**Roles y permisos**
+- El catálogo de permisos sale agrupado por módulo y contiene todos los permisos declarados.
+- Los permisos de un módulo se obtienen por su código (sin distinguir mayúsculas); un módulo inexistente da 404.
+- Crear un rol con permisos los deja asignados; código inexistente o nombre repetido (sin distinguir mayúsculas) da 422.
+- Actualizar un rol deja exactamente los permisos enviados.
+- El rol Admin no se puede modificar ni eliminar.
+- Un rol asignado a algún usuario no se puede eliminar, ni por la API (422) ni directamente en la base de datos (FK `RESTRICT`).
+- Los roles de un usuario se reemplazan como conjunto; rol inexistente da 422 y usuario inexistente 404.
+- El rol Admin no se puede quitar a su último titular.
+- Un cambio de permisos de un rol llega al usuario en el siguiente refresh, no antes.
+- La sincronización es idempotente, restaura textos cambiados, conserva los permisos no declarados y no altera otros roles; varias ejecuciones simultáneas no fallan ni duplican filas.
+- Un catálogo con un código repetido o mal formado se rechaza.
 
 Estos casos están implementados en `tests/Identity.IntegrationTests`, contra PostgreSQL real (Testcontainers), junto con los del flujo de invitación, los reintentos del outbox, el arranque del primer administrador, la purga y el rate limiting.
 

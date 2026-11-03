@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Entities;
+using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Identity.Persistence.Seed;
@@ -19,11 +19,11 @@ namespace Identity.Persistence.Configurations.Entities
 
             builder.Property(r => r.RoleName)
                 .IsRequired()
-                .HasMaxLength(50)
+                .HasMaxLength(Role.NameMaxLength)
                 .HasColumnName("role_name");
 
             builder.Property(r => r.RoleDescription)
-                .HasMaxLength(250)
+                .HasMaxLength(Role.DescriptionMaxLength)
                 .IsRequired()
                 .HasColumnName("role_description");
 

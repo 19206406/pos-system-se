@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Shared.Constants.Claims;
 using System.Threading.RateLimiting;
 
 namespace Identity.Presentation
@@ -34,16 +33,11 @@ namespace Identity.Presentation
 
         private static void AddAuthorization(IServiceCollection services)
         {
+            // One policy per permission code declared by any module's IModulePermissionCatalog
+            services.AddSingleton<IConfigureOptions<AuthorizationOptions>, PermissionPolicySetup>();
+
             services.AddAuthorization(options =>
             {
-                // One policy per permission code; a code missing from PermissionCodes.All has no policy (500 if used)
-                foreach (var code in PermissionCodes.All)
-                {
-                    options.AddPolicy(code, policy => policy
-                        .RequireAuthenticatedUser()
-                        .RequireClaim(AuthClaimTypes.Permission, code));
-                }
-
                 // Every endpoint without an attribute requires an authenticated user; public ones say [AllowAnonymous]
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()

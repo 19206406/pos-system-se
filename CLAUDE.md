@@ -22,11 +22,11 @@ Este archivo es la fuente de verdad sobre cómo está construido el proyecto y c
 ## Estructura de la solución
 
 - Solución `pos-system`. El host es **`PosSystem.Api`** (único proyecto de tipo Web; es la raíz de composición, no un gateway).
-- Carpeta `Shared` con el proyecto `Shared` (Constants, CQRS, Exceptions, Mediator) y código transversal.
+- Carpeta `Shared` con el proyecto `Shared` (Authorization, Constants, CQRS, Exceptions, Mediator) y código transversal. `Shared/Authorization` tiene el contrato con el que cada módulo declara sus permisos (`IModulePermissionCatalog`).
 - Cada módulo se compone de proyectos de biblioteca de clases (`Microsoft.NET.Sdk`, nunca Web SDK). Identity tiene:
   - `Identity.Domain` — entidades (`User`, `Session`, `Role`, `Permission`, `UserRole`, `PasswordToken`, ...). Sin dependencias.
   - `Identity.Application` — contratos (`Contracts`), DTOs, casos de uso en `Features`, validaciones, excepciones, servicios de aplicación.
-  - `Identity.Infrastructure` — seguridad (hashing de contraseñas, generación de tokens JWT, refresh y de password), envío de correo por SMTP y servicios en segundo plano (procesador del outbox, purga, arranque del primer administrador).
+  - `Identity.Infrastructure` — seguridad (hashing de contraseñas, generación de tokens JWT, refresh y de password), envío de correo por SMTP y servicios en segundo plano (procesador del outbox, purga, arranque del primer administrador, sincronización de permisos).
   - `Identity.Persistence` — `IdentityDbContext`, configuraciones EF, repositorios.
   - `Identity.Presentation` — controladores MVC, requests HTTP, configuración de autenticación JWT Bearer y políticas.
   - `Identity.Module` — raíz de composición del módulo. Sin lógica: solo `AddIdentityModule`, que llama a los registros de cada capa.
