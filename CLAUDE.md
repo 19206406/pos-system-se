@@ -26,12 +26,12 @@ Este archivo es la fuente de verdad sobre cómo está construido el proyecto y c
 - Cada módulo se compone de proyectos de biblioteca de clases (`Microsoft.NET.Sdk`, nunca Web SDK). Identity tiene:
   - `Identity.Domain` — entidades (`User`, `Session`, `Role`, `Permission`, `UserRole`, `PasswordToken`, ...). Sin dependencias.
   - `Identity.Application` — contratos (`Contracts`), DTOs, casos de uso en `Features`, validaciones, excepciones, servicios de aplicación.
-  - `Identity.Infrastructure` — seguridad (hashing de contraseñas, generación de tokens JWT y refresh).
+  - `Identity.Infrastructure` — seguridad (hashing de contraseñas, generación de tokens JWT, refresh y de password), envío de correo por SMTP y servicios en segundo plano (procesador del outbox, purga, arranque del primer administrador).
   - `Identity.Persistence` — `IdentityDbContext`, configuraciones EF, repositorios.
   - `Identity.Presentation` — controladores MVC, requests HTTP, configuración de autenticación JWT Bearer y políticas.
   - `Identity.Module` — raíz de composición del módulo. Sin lógica: solo `AddIdentityModule`, que llama a los registros de cada capa.
 - Cada capa expone su propio registro de DI con el patrón `AddIdentity<Capa>Services`. El proyecto `<Módulo>.Module` los compone, y `Program.cs` solo llama a un `Add<Módulo>Module` por módulo.
-- **Verificar:** pueden quedar proyectos heredados de una estructura anterior (`Identity.Api`, `Identity.Data`, `Identity.DTOs`, `Identity.UseCases`). Si existen, repórtalos; no los borres sin preguntar.
+- No quedan proyectos heredados de la estructura anterior (`Identity.Api`, `Identity.Data`, `Identity.DTOs`, `Identity.UseCases`); se verificó en la auditoría del 2026-10-30. Si reaparece alguno, repórtalo y no lo borres sin preguntar.
 
 ### Reglas de dependencia (se hacen cumplir con referencias de proyecto)
 
@@ -45,14 +45,14 @@ Este archivo es la fuente de verdad sobre cómo está construido el proyecto y c
 ## Stack y convenciones técnicas
 
 - ASP.NET Core con **controladores MVC** en Identity (otros módulos podrán usar otro estilo; la arquitectura varía a propósito según la complejidad del módulo).
-- EF Core **Code First** con Fluent API (`IEntityTypeConfiguration<T>`), Npgsql, nombres en snake_case (`EFCore.NamingConventions`), un `DbContext` y un schema por módulo en una única base PostgreSQL.
+- EF Core **Code First** con Fluent API (`IEntityTypeConfiguration<T>`), Npgsql, nombres en snake_case declarados explícitamente con `HasColumnName` (no se usa `EFCore.NamingConventions`), un `DbContext` y un schema por módulo en una única base PostgreSQL.
 - `IdentityDbContext` implementa `IUnitOfWork`. Los repositorios de escritura usan tracking; las lecturas usan `AsNoTracking()` con proyección (`Select`) a DTOs.
 - Restricciones con nombre explícito: `pk_`, `fk_`, `uq_`, `idx_`, `chk_`. Preferir `VARCHAR + CHECK` sobre enums nativos de Postgres.
 - Fechas **siempre en UTC** y con `DateTime` (decisión D6 de la auditoría): todas las entidades usan `DateTime`, obtenido con `TimeProvider.GetUtcNow().UtcDateTime`; las columnas son `timestamptz`. No se usa `DateTimeOffset`.
 - El tiempo se obtiene con `TimeProvider` inyectado, nunca con `DateTime.UtcNow` directo en lógica de negocio.
 - Todo método asíncrono propaga `CancellationToken`.
 - Validación con **FluentValidation**, ejecutada antes del handler (pipeline), de modo que aplique sin importar quién llame.
-- Excepciones de dominio/aplicación derivan de `BaseException` y las traduce un `IExceptionHandler` global a `ProblemDetails`. Convención: validación 400, no autenticado 401, sin permiso 403, no encontrado 404, regla de negocio 422, límite de tasa 429. **Verificar** si existe además un tipo `Result<T>` para fallos esperados y cuál de los dos mecanismos usan las acciones ya implementadas; sigue el que ya esté en uso y pregunta ante conflicto.
+- Excepciones de dominio/aplicación derivan de `BaseException` y las traduce un `IExceptionHandler` global a `ProblemDetails`. Convención: validación 400, no autenticado 401, sin permiso 403, no encontrado 404, regla de negocio 422, límite de tasa 429. No existe un tipo `Result<T>`: las acciones señalan los fallos esperados con excepciones (`NotFoundException`, `BusinessException`, `UnauthorizedException`, `BadRequestException`, ...). Los mensajes de esas excepciones salen en la respuesta y en el log, así que nunca llevan tokens, contraseñas ni datos que distingan la causa de un fallo de autenticación.
 - Mediator propio en `Shared` (no MediatR, por el cambio de licencia). **Verificar** las interfaces reales de `Shared/CQRS` y `Shared/Mediator` antes de escribir handlers.
 
 ## Convención de cada acción (CQRS)
@@ -66,7 +66,7 @@ Cada acción vive en su carpeta, `Features/<Área>/<Commands|Queries>/<NombreAcc
 
 El **Request HTTP** vive en Presentation. El controlador es delgado: arma el command a partir del request, los claims del token y el contexto del cliente, lo envía por el mediator y traduce el resultado a HTTP. Los identificadores del usuario autenticado salen **siempre** de los claims, nunca del body ni de la ruta en acciones sobre "mi cuenta".
 
-Nombres: `Querys` es un error ortográfico heredado; el nombre correcto es `Queries`. Ver los renombrados pendientes en `HANDOFF.md`.
+Nombres: `Querys` es un error ortográfico heredado; el nombre correcto es `Queries`.
 
 ## Seguridad: reglas no negociables
 
@@ -93,7 +93,7 @@ El diseño completo de autenticación y autorización está en `docs/identity-au
 ## Comandos habituales
 
 - Compilar la solución: `dotnet build`
-- Pruebas: `dotnet test`
+- Pruebas: `dotnet test --solution POS-system.slnx` (la raíz tiene dos archivos de proyecto, así que hay que indicar la solución). Requiere Docker en marcha: las pruebas de integración de `tests/Identity.IntegrationTests` levantan su propio PostgreSQL 16 desechable con Testcontainers y nunca tocan la base de desarrollo. `global.json` activa Microsoft.Testing.Platform, que es el ejecutor que exige el SDK de .NET 10 para xunit v3.
 - Crear migración de Identity: `dotnet ef migrations add <Nombre> --context IdentityDbContext --project Identity.Persistence --startup-project PosSystem.Api --output-dir Migrations`
 - Aplicar migraciones: `dotnet ef database update ...` con los mismos parámetros. **Pide confirmación antes de ejecutarlo.**
 
@@ -109,5 +109,5 @@ El diseño completo de autenticación y autorización está en `docs/identity-au
 ## Forma de entregar cambios
 
 - Cambios pequeños y verificables: compila después de cada bloque coherente.
-- Un commit por unidad lógica, con mensaje descriptivo en español.
+- Los commits los hace Sebastián. Deja los cambios sin confirmar y, al terminar, propón cómo agruparlos por unidad lógica, con mensajes descriptivos en español.
 - Al terminar cada tarea: qué cambiaste, qué verificaste, qué quedó pendiente y por qué.
