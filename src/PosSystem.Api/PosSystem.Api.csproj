@@ -25,4 +25,17 @@
     <ProjectReference Include="..\Modules\Identity\Identity.Module\Identity.Module.csproj" />
   </ItemGroup>
 
+  <!--
+    The OpenAPI XML comment generator runs in this project and only reads the comments it receives as AdditionalFiles.
+    The controllers live in the modules' Presentation projects, so their XML documentation files are passed here.
+    Add each new module's Presentation project to the condition.
+  -->
+  <Target Name="AddModuleXmlDocumentationToOpenApi" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <AdditionalFiles Include="@(ReferencePath->'%(RootDir)%(Directory)%(Filename).xml')"
+                       Condition="'%(ReferencePath.Filename)' == 'Identity.Presentation'"
+                       KeepMetadata="Identity;HintPath" />
+    </ItemGroup>
+  </Target>
+
 </Project>

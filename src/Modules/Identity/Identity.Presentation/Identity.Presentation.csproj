@@ -4,6 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- The XML file feeds the OpenAPI document (Scalar) through the generator that runs in PosSystem.Api -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--
+      CS1591: only the controller actions and requests are documented on purpose.
+      CS1573: actions do not document their CancellationToken. It is not part of the HTTP contract, and the OpenAPI
+      generator copies every <param> that is not a route or query parameter into the request body description,
+      so documenting it would overwrite the description of the body.
+    -->
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
   </PropertyGroup>
 
 
