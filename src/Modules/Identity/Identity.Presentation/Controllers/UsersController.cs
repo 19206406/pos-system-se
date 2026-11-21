@@ -4,6 +4,7 @@ using Identity.Application.Features.Users.Commands.DeactivateUser;
 using Identity.Application.Features.Users.Commands.ReactivateUser;
 using Identity.Application.Features.Users.Commands.ResendInvite;
 using Identity.Application.Features.Users.Commands.RevokeUserSessions;
+using Identity.Application.Features.Users.Commands.UpdateUser;
 using Identity.Application.Features.Users.Commands.UpdateUserRoles;
 using Identity.Application.Features.Users.Queries.GetUserById;
 using Identity.Application.Features.Users.Queries.GetUserRoles;
@@ -258,6 +259,35 @@ namespace Identity.Presentation.Controllers
         public async Task<ActionResult<GetUserRolesResponse>> GetUserRoles([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             GetUserRolesResponse result = await _sender.Send(new GetUserRolesQuery(id), cancellationToken);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Updates the basic profile of a user: full name, job title and phone number.
+        /// </summary>
+        /// <remarks>
+        /// Replaces the three fields with the values sent; none of them is optional. The email, the password, the
+        /// active state and the roles are not changed here: use forgot-password, POST {id}/deactivate,
+        /// POST {id}/reactivate and PUT {id}/roles for those. Works on active and inactive users alike, and does not
+        /// close the user's sessions.
+        /// </remarks>
+        /// <param name="id">The id of the user to update.</param>
+        /// <param name="request">The user's new full name, job title and phone number.</param>
+        /// <response code="200">The updated user with their id, full name, job title, phone number and update date.</response>
+        /// <response code="400">A field is empty or too long (full name and job title up to 100, phone number up to 20).</response>
+        /// <response code="401">The request has no valid access token.</response>
+        /// <response code="403">The user does not have the users update permission.</response>
+        /// <response code="404">No user with that id exists.</response>
+        [HttpPut("{id:guid}")]
+        [Authorize(Policy = IdentityPermissionCodes.Users.Update)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UpdateUserResponse>> UpdateUser([FromRoute] Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
+        {
+            UpdateUserResponse result = await _sender.Send(new UpdateUserCommand(id, request.FullName, request.JobTitle, request.PhoneNumber), cancellationToken);
             return Ok(result);
         }
 

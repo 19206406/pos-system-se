@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.editorconfig
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -363,4 +364,4 @@ MigrationBackup/
 FodyWeavers.xsd
 # Local environment secrets for docker compose (template in .env.example)
 .env
-.md 
+.md

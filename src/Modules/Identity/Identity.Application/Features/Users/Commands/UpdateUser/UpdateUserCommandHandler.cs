@@ -24,12 +24,12 @@ namespace Identity.Application.Features.Users.Commands.UpdateUser
 
             user.FullName = command.FullName;
             user.JobTitle = command.JobTitle;
-            user.PhoneNumber = command.PhoneNumber; 
-            user.CreatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+            user.PhoneNumber = command.PhoneNumber;
+            user.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new UpdateUserResponse(user.Id, user.FullName, user.JobTitle, user.PhoneNumber, user.UpdatedAt); 
+            return new UpdateUserResponse(user.Id, user.FullName, user.JobTitle, user.PhoneNumber, user.UpdatedAt);
         }
     }
 }

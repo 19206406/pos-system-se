@@ -3,6 +3,14 @@
     <Project Path="src/PosSystem.Api/PosSystem.Api.csproj" Id="a5e53dd5-d579-43b0-a454-3b25a6176e8b" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Catalog/">
+    <Project Path="src/Modules/Catalog/Catalog.Application/Catalog.Application.csproj" Id="fc710fb7-f2db-4b77-a414-fa4e09e384b8" />
+    <Project Path="src/Modules/Catalog/Catalog.Domain/Catalog.Domain.csproj" Id="761b28f2-a8ba-42d8-9efa-ad911042075c" />
+    <Project Path="src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj" Id="ccd720f1-71de-4a9d-a4c3-d12781421718" />
+    <Project Path="src/Modules/Catalog/Catalog.Module/Catalog.Module.csproj" Id="2355a1cd-c86a-4c57-a7c5-c12f607423c4" />
+    <Project Path="src/Modules/Catalog/Catalog.Persistence/Catalog.Persistence.csproj" Id="8ec15477-209e-4402-a2c4-b156af459b75" />
+    <Project Path="src/Modules/Catalog/Catalog.Presentation/Catalog.Presentation.csproj" Id="c826390c-ed39-4262-8d0c-6a3751d62070" />
+  </Folder>
   <Folder Name="/src/Modules/Identity/">
     <Project Path="src/Modules/Identity/Identity.Application/Identity.Application.csproj" />
     <Project Path="src/Modules/Identity/Identity.Domain/Identity.Domain.csproj" />
