@@ -33,8 +33,10 @@ namespace Identity.Application
             services.AddSingleton<PermissionCatalog>();
             services.AddScoped<PermissionCatalogSynchronizer>();
 
-            // Outbox: one explicit registration per message type; OutboxMessageProcessor finds them by MessageType
-            services.AddScoped<OutboxMessageProcessor>();
+            // Messaging: one explicit handler registration per message type; NotificationMessageConsumer finds them by MessageType.
+            // The subscription tells the transport which queue to create and what to run for each message.
+            services.AddScoped<NotificationMessageConsumer>();
+            services.AddSingleton(IdentityMessaging.NotificationsSubscription());
             services.AddScoped<PasswordLinkEmailSender>();
             services.AddScoped<IOutboxMessageHandler, UserInviteRequestedHandler>();
             services.AddScoped<IOutboxMessageHandler, PasswordResetRequestedHandler>();

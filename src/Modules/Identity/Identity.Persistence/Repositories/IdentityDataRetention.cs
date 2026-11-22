@@ -29,7 +29,11 @@ namespace Identity.Persistence.Repositories
                 .Where(m => m.ProcessedAt < cutoffUtc)
                 .ExecuteDeleteAsync(cancellationToken);
 
-            return new RetentionPurgeResult(sessions, passwordTokens, outboxMessages);
+            var inboxMessages = await _context.InboxMessages
+                .Where(m => m.ProcessedAt < cutoffUtc)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            return new RetentionPurgeResult(sessions, passwordTokens, outboxMessages, inboxMessages);
         }
     }
 }

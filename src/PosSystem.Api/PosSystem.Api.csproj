@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Modules\Identity\Identity.Module\Identity.Module.csproj" />
+    <!-- Message transport shared by every module: the host picks it (RabbitMQ or in memory) from configuration -->
+    <ProjectReference Include="..\Shared\Shared.Messaging.RabbitMq\Shared.Messaging.RabbitMq.csproj" />
   </ItemGroup>
 
   <!--

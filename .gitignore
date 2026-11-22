@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 *.editorconfig
+mipos-diseno-bd-v1.0.md
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

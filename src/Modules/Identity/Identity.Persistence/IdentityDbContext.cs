@@ -18,6 +18,7 @@ namespace Identity.Persistence
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<PasswordToken> PasswordTokens { get; set; }
         public DbSet<OutboxMessage> OutboxMessages { get; set; }
+        public DbSet<InboxMessage> InboxMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

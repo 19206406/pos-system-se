@@ -21,6 +21,28 @@ services:
       postgres
       -c password_encryption=md5
 
+  # Message broker between modules. Management UI at http://localhost:15672 (log in with the user and password from .env).
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:4-management-alpine
+    environment:
+      # Read from .env (not versioned). Copy .env.example to .env and fill it in.
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-admin}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - modular-monolith-network
+
   # Development only: fake SMTP server that keeps every email. Inbox at http://localhost:8025, SMTP on localhost:1025.
   mailpit:
     container_name: mailpit
@@ -33,4 +55,6 @@ services:
 
 volumes:
   postgres-posdb-data:
+    driver: local
+  rabbitmq-data:
     driver: local

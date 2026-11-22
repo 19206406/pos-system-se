@@ -23,6 +23,30 @@ namespace Identity.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Identity.Domain.Entities.InboxMessage", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<string>("Handler")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("handler");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.HasKey("MessageId", "Handler")
+                        .HasName("pk_inbox_messages");
+
+                    b.HasIndex("ProcessedAt")
+                        .HasDatabaseName("idx_inbox_messages_processed_at");
+
+                    b.ToTable("inbox_messages", "identity");
+                });
+
             modelBuilder.Entity("Identity.Domain.Entities.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -36,6 +60,10 @@ namespace Identity.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("attempts");
+
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("correlation_id");
 
                     b.Property<string>("LastError")
                         .HasMaxLength(500)

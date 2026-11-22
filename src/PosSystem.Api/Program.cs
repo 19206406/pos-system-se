@@ -2,6 +2,7 @@ using Identity.Module;
 using Microsoft.AspNetCore.HttpOverrides;
 using PosSystem.Api.ExceptionHandling;
 using Scalar.AspNetCore;
+using Shared.Messaging.RabbitMq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 /// <summary> shared exception </summary>
 builder.Services.AddGlobalExceptionHandling();
+
+/// <summary> message transport (RabbitMQ or in memory); each module adds its own subscriptions </summary>
+builder.Services.AddMessaging(builder.Configuration);
 
 /// <summary> modules </summary>
 builder.Services.AddIdentityModule(builder.Configuration);

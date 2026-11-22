@@ -1,4 +1,4 @@
-using Identity.Application.Contracts.Persistence;
+﻿using Identity.Application.Contracts.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -40,8 +40,8 @@ namespace Identity.Infrastructure.Maintenance
                         .PurgeAsync(cutoff, stoppingToken);
 
                     _logger.LogInformation(
-                        "Retention purge removed {Sessions} sessions, {PasswordTokens} password tokens and {OutboxMessages} outbox messages",
-                        result.Sessions, result.PasswordTokens, result.OutboxMessages);
+                        "Retention purge removed {Sessions} sessions, {PasswordTokens} password tokens, {OutboxMessages} outbox messages and {InboxMessages} inbox messages",
+                        result.Sessions, result.PasswordTokens, result.OutboxMessages, result.InboxMessages);
                 }
                 catch (Exception exception) when (exception is not OperationCanceledException)
                 {

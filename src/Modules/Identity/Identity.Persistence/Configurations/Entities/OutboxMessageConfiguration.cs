@@ -27,6 +27,9 @@ namespace Identity.Persistence.Configurations.Entities
                 .IsRequired()
                 .HasColumnName("payload");
 
+            builder.Property(m => m.CorrelationId)
+                .HasColumnName("correlation_id");
+
             builder.Property(m => m.OccurredAt)
                 .HasColumnName("occurred_at");
 

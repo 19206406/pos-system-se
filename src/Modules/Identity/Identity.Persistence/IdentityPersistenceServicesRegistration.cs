@@ -44,6 +44,7 @@ namespace Identity.Persistence
 
             services.AddScoped<IOutbox, Outbox>();
             services.AddScoped<IOutboxStore, OutboxStore>();
+            services.AddScoped<IIdentityInboxStore, InboxStore>();
             services.AddScoped<IIdentityDataRetention, IdentityDataRetention>();
 
             return services; 

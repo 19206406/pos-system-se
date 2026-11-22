@@ -23,6 +23,9 @@
   <Folder Name="/src/Shared/Shared/">
     <Project Path="src/Shared/Shared/Shared.csproj" />
   </Folder>
+  <Folder Name="/src/Shared/Shared.Messaging.RabbitMq/">
+    <Project Path="src/Shared/Shared.Messaging.RabbitMq/Shared.Messaging.RabbitMq.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Identity.IntegrationTests/Identity.IntegrationTests.csproj" />
   </Folder>

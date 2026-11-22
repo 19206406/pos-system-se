@@ -37,7 +37,7 @@ namespace Identity.Infrastructure
 
             services.AddSingleton<IEmailSender, SmtpEmailSender>();
 
-            services.AddHostedService<OutboxProcessorService>();
+            services.AddHostedService<OutboxDispatcherService>();
             services.AddHostedService<RetentionPurgeService>();
             services.AddHostedService<AdminBootstrapService>();
             services.AddHostedService<PermissionSyncService>();

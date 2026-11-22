@@ -41,6 +41,8 @@ namespace Identity.IntegrationTests.Infrastructure
                 ["Smtp:Host"] = "smtp.unused.test",
                 ["Smtp:FromAddress"] = "no-reply@test.local",
                 ["Outbox:PollingIntervalSeconds"] = "1",
+                // No broker in these tests: messages go straight from the dispatcher to the consumers
+                ["Messaging:Transport"] = "InMemory",
                 // Tests log in many times from the same address; the rate limiting test lowers these again
                 ["IdentityRateLimits:CredentialsPermitLimit"] = "100000",
                 ["IdentityRateLimits:PasswordTokensPermitLimit"] = "100000",
