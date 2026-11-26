@@ -19,29 +19,27 @@ namespace Catalog.Persistence.Configurations.Entities
 
             builder.Property(c => c.Name)
                 .IsRequired()
-                .HasMaxLength(100)
+                .HasMaxLength(Category.NameMaxLength)
                 .HasColumnName("name");
 
             builder.Property(c => c.DisplayOrder)
-                .IsRequired()
                 .HasDefaultValue(0)
                 .HasColumnName("display_order");
 
             builder.Property(c => c.IsActive)
-                .IsRequired()
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
 
             builder.Property(c => c.CreatedAt)
+                .HasDefaultValueSql("now()")
                 .HasColumnName("created_at");
 
             builder.Property(c => c.UpdatedAt)
                 .HasColumnName("updated_at");
 
-
             builder.HasIndex(c => c.Name)
                 .IsUnique()
-                .HasDatabaseName("uq_categories_name"); 
+                .HasDatabaseName("uq_categories_name");
         }
     }
 }

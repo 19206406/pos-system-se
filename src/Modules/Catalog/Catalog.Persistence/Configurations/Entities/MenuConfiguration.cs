@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Catalog.Persistence.Configurations.Entities
 {
-    internal class MenuConfiguration : IEntityTypeConfiguration<Menu>
+    public class MenuConfiguration : IEntityTypeConfiguration<Menu>
     {
         public void Configure(EntityTypeBuilder<Menu> builder)
         {
@@ -20,28 +20,27 @@ namespace Catalog.Persistence.Configurations.Entities
 
             builder.Property(m => m.Name)
                 .IsRequired()
-                .HasMaxLength(100)
+                .HasMaxLength(Menu.NameMaxLength)
                 .HasColumnName("name");
 
             builder.Property(m => m.Description)
-                .HasMaxLength(250)
+                .HasMaxLength(Menu.DescriptionMaxLength)
                 .HasColumnName("description");
 
             builder.Property(m => m.IsActive)
-                .IsRequired()
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
 
             builder.Property(m => m.CreatedAt)
+                .HasDefaultValueSql("now()")
                 .HasColumnName("created_at");
 
             builder.Property(m => m.UpdatedAt)
                 .HasColumnName("updated_at");
 
-
             builder.HasIndex(m => m.Name)
                 .IsUnique()
-                .HasDatabaseName("uq_menus_name"); 
+                .HasDatabaseName("uq_menus_name");
         }
     }
 }

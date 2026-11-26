@@ -1,3 +1,4 @@
+using Catalog.Module;
 using Identity.Module;
 using Microsoft.AspNetCore.HttpOverrides;
 using PosSystem.Api.ExceptionHandling;
@@ -28,6 +29,7 @@ builder.Services.AddGlobalExceptionHandling();
 builder.Services.AddMessaging(builder.Configuration);
 
 /// <summary> modules </summary>
+builder.Services.AddCatalogModule(builder.Configuration);
 builder.Services.AddIdentityModule(builder.Configuration);
 
 var app = builder.Build();

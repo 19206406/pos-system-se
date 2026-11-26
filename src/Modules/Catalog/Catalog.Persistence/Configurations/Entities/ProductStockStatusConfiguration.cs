@@ -17,17 +17,17 @@ namespace Catalog.Persistence.Configurations.Entities
                 .HasColumnName("product_id");
 
             builder.Property(ps => ps.IsAvailable)
-                .IsRequired()
                 .HasColumnName("is_available");
 
             builder.Property(ps => ps.Reason)
-                .HasMaxLength(250)
+                .HasMaxLength(ProductStockStatus.ReasonMaxLength)
                 .HasColumnName("reason");
 
-            builder.Property(ps => ps.SourceOcurredAt)
-                .HasColumnName("source_ocurred_at");
+            builder.Property(ps => ps.SourceOccurredAt)
+                .HasColumnName("source_occurred_at");
 
             builder.Property(ps => ps.UpdatedAt)
+                .HasDefaultValueSql("now()")
                 .HasColumnName("updated_at");
 
             builder.HasOne(ps => ps.Product)

@@ -8,24 +8,26 @@ namespace Catalog.Persistence.Configurations.Entities
     {
         public void Configure(EntityTypeBuilder<InboxMessage> builder)
         {
+            builder.ToTable("inbox_messages");
+
             builder.HasKey(im => new { im.MessageId, im.Handler })
                 .HasName("pk_inbox_messages");
 
             builder.Property(im => im.MessageId)
-                .IsRequired()
                 .HasColumnName("message_id");
 
             builder.Property(im => im.Handler)
                 .IsRequired()
-                .HasMaxLength(200)
+                .HasMaxLength(InboxMessage.HandlerMaxLength)
                 .HasColumnName("handler");
 
             builder.Property(im => im.ProcessedAt)
-                .IsRequired()
+                .HasDefaultValueSql("now()")
                 .HasColumnName("processed_at");
 
+            // The retention job deletes by age
             builder.HasIndex(im => im.ProcessedAt)
-                .HasDatabaseName("idx_inbox_messages_processed_at"); 
+                .HasDatabaseName("idx_inbox_messages_processed_at");
         }
     }
 }
